@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30320.27
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "P4G_Encount_Music_Editor", "P4G_Encount_Music_Editor\P4G_Encount_Music_Editor.csproj", "{589B7C29-45CA-4D20-95CB-5BDD4B7EDDC8}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{589B7C29-45CA-4D20-95CB-5BDD4B7EDDC8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{589B7C29-45CA-4D20-95CB-5BDD4B7EDDC8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{589B7C29-45CA-4D20-95CB-5BDD4B7EDDC8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{589B7C29-45CA-4D20-95CB-5BDD4B7EDDC8}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D8E85398-E2B5-4021-8A5C-111A9E0053AB}
+	EndGlobalSection
+EndGlobal
