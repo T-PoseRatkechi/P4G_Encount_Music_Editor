@@ -19,59 +19,52 @@ namespace P4G_Encount_Music_Editor
             public ushort MusicId { get; set; }
         }
 
+        private static string currentDir = null;
+        private static string originalFolderDir = null;
+        private static string moddedFolderDir = null;
+        private static string presetsFolderDir = null;
+
         static void Main(string[] args)
         {
             Console.WriteLine("Hello World!");
+            SetPaths();
             EditEncount();
+        }
+
+        private static void SetPaths()
+        {
+            currentDir = Directory.GetCurrentDirectory();
+            originalFolderDir = $@"{currentDir}\original";
+            moddedFolderDir = $@"{currentDir}\modded";
+            presetsFolderDir = $@"{currentDir}\presets";
+
+            // create folders if needed
+            try
+            {
+                Directory.CreateDirectory(originalFolderDir);
+                Directory.CreateDirectory(moddedFolderDir);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Problem creating folders...");
+            }
         }
 
         private static void EditEncount()
         {
-            string currentDir = Directory.GetCurrentDirectory();
-            string inEncountPath = $@"{currentDir}\ENCOUNT.TBL";
-            string outEncountPath = $@"{currentDir}\modded\ENCOUNT.TBL";
-
-            List<Encounter> allEncounters = new List<Encounter>();
-
-            using (BinaryReader reader = new BinaryReader(File.Open(inEncountPath, FileMode.Open)))
+            string inEncountPath = $@"{originalFolderDir}\ENCOUNT.TBL";
+            if (!File.Exists(inEncountPath))
             {
-                // skip first 4 bytes
-                UInt32 size = reader.ReadUInt32();
-
-                for (int bytesRead = 4; bytesRead < size; bytesRead+=24)
-                {
-                    Encounter currentEncounter = new Encounter();
-                    currentEncounter.Flags = reader.ReadBytes(4);
-                    currentEncounter.Field04 = reader.ReadUInt16();
-                    currentEncounter.Field06 = reader.ReadUInt16();
-                    currentEncounter.Units = new EnemiesID[] { (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16() };
-                    currentEncounter.FieldId = reader.ReadUInt16();
-                    currentEncounter.RoomId = reader.ReadUInt16();
-                    currentEncounter.MusicId = reader.ReadUInt16();
-                    allEncounters.Add(currentEncounter);
-                }
+                Console.WriteLine($"Missing original ENCOUNT.TBL! File: {inEncountPath}");
+                return;
             }
 
-            Console.WriteLine($"Total Encounters: {allEncounters.Count}");
-            Console.WriteLine($"Displaying First 5 Encounters");
+            string outEncountPath = $@"{moddedFolderDir}\ENCOUNT.TBL";
 
-            for (int i = 0; i < 5; i++)
-            {
-                Encounter currentEncounter = allEncounters[i];
-                Console.WriteLine($"ID: {i} MusicId: {currentEncounter.MusicId}");
-                DisplayEnemiesList(currentEncounter.Units);
-            }
+            Encounter[] allBattles = GetEncountersList(inEncountPath);
 
-            Console.WriteLine($"Randomizing Encounter MusicIds");
-            Encounter[] allBattles = allEncounters.ToArray();
-
-            Random rand = new Random();
-            for (int i = 0, total = allEncounters.Count; i < total; i++)
-            {
-                allBattles[i].MusicId = (ushort) (886 + rand.Next(0,10));
-            }
-
-            Console.WriteLine($"Creating New Encount");
+            RandomizeEncounterBgm(allBattles);
 
             using (BinaryWriter writer = new BinaryWriter(File.Open(outEncountPath, FileMode.Create)))
             {
@@ -94,6 +87,49 @@ namespace P4G_Encount_Music_Editor
                 reader.BaseStream.Seek(size, SeekOrigin.Current);
                 writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
             }
+        }
+
+        private static void RandomizeEncounterBgm(Encounter[] encounters)
+        {
+            Console.Clear();
+            Console.WriteLine($"Randomizing Encounter MusicIds");
+            Console.WriteLine("Input index range. Indexes will equal Min to Max - 1. Enter 0 and 0 for BGME default range (886-895).");
+
+            int min = PromptInt("Min");
+            int max = PromptInt("Max");
+
+            if (min == 0 && max == 0)
+            {
+                min = 886;
+                max = 895 + 1;
+            }
+
+            Random rand = new Random();
+            for (int i = 0, total = encounters.Length; i < total; i++)
+            {
+                encounters[i].MusicId = (ushort)(rand.Next(min, max));
+            }
+        }
+
+        private static int PromptInt(string name)
+        {
+            int theNumber = -1;
+
+            while (theNumber < 0)
+            {
+                Console.Write($"Enter {name} (number): ");
+                string input = Console.ReadLine();
+                try
+                {
+                    theNumber = Int32.Parse(input);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine("Couldn't parse numer!");
+                }
+            }
+
+            return theNumber;
         }
 
         private static Encounter[] GetEncountersList(string encountPath)
@@ -129,7 +165,7 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine($"Couldn't parse ENCOUNT.TBL file! File: {encountPath}");
             }
 
-            return allEncounters.Count <= 0 ? null : allEncounters.ToArray();
+            return allEncounters.ToArray();
         }
 
         public static void DisplayEnemiesList(EnemiesID[] enemies)
