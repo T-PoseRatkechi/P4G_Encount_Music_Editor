@@ -28,6 +28,7 @@ namespace P4G_Encount_Music_Editor
 
         private static PresetHandler presetHandler = new PresetHandler();
         private static ConfigHandler config = new ConfigHandler();
+        private static MusicManagerManager musicManager = new MusicManagerManager();
 
         static void Main(string[] args)
         {
@@ -164,6 +165,7 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine("1. Run Preset");
                 Console.WriteLine("2. Rebuild Config");
                 Console.WriteLine("3. Output Encounter List");
+                Console.WriteLine("4. Extend Music Manager Tracklist");
                 Console.WriteLine("0. Exit and Save");
 
                 menuSelection = PromptInt("Menu Selection");
@@ -177,6 +179,9 @@ namespace P4G_Encount_Music_Editor
                         break;
                     case 3:
                         OutputEncounterList(allBattles);
+                        break;
+                    case 4:
+                        musicManager.ExtendSongsList();
                         break;
                     default:
                         break;
