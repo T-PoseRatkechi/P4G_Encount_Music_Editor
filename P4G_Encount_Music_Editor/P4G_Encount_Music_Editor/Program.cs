@@ -27,6 +27,7 @@ namespace P4G_Encount_Music_Editor
         private static string presetsFolderDir = null;
 
         private static PresetHandler presetHandler = new PresetHandler();
+        private static ConfigHandler config = new ConfigHandler();
 
         static void Main(string[] args)
         {
@@ -161,7 +162,7 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine("P4G_Encount_Music_Editor");
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Run Preset");
-                Console.WriteLine("2. Build Config");
+                Console.WriteLine("2. Rebuild Config");
                 Console.WriteLine("3. Output Encounter List");
                 Console.WriteLine("0. Exit and Save");
 
@@ -172,7 +173,7 @@ namespace P4G_Encount_Music_Editor
                         presetHandler.RunPreset(allBattles);
                         break;
                     case 2:
-                        presetHandler.RunPreset(allBattles);
+                        config.RebuildPatch();
                         break;
                     case 3:
                         OutputEncounterList(allBattles);
@@ -183,6 +184,7 @@ namespace P4G_Encount_Music_Editor
 
             } while (menuSelection != 0);
 
+            // write edited encounter tbl
             using (BinaryWriter writer = new BinaryWriter(File.Open(outEncountPath, FileMode.Create)))
             {
                 using BinaryReader reader = new BinaryReader(File.Open(inEncountPath, FileMode.Open));

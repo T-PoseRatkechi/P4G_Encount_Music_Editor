@@ -48,16 +48,12 @@ namespace P4G_Encount_Music_Editor
                         int encounterIndex = Int32.Parse(lineArgs[0]);
                         ushort songIndex = UInt16.Parse(lineArgs[1]);
 
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.WriteLine("Direct Edit");
+                        Console.ResetColor();
                         Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {songIndex}");
                         encounters[encounterIndex].MusicId = songIndex;
                     }
-                    /*
-                    int encounterIndex = Int32.Parse(line.Replace(' ', '\0').Split("=")[0]);
-                    ushort songIndex = UInt16.Parse(line.Replace(' ', '\0').Split("=")[1]);
-
-                    Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {songIndex}");
-                    encounters[encounterIndex].MusicId = songIndex;
-                    */
                 }
             }
             catch (Exception e)
@@ -142,7 +138,7 @@ namespace P4G_Encount_Music_Editor
                             try
                             {
                                 int encounterIndex = Int32.Parse(line);
-                                Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {newMusicId}!");
+                                Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {newMusicId}");
                                 encounters[encounterIndex].MusicId = newMusicId;
                             }
                             catch (Exception e)
