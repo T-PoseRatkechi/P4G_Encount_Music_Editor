@@ -29,6 +29,19 @@ namespace P4G_Encount_Music_Editor
         public string trackName { get; set; }
     }
 
+    public class originalTracks
+    {
+        public trackObject[] tracks { get; set; }
+    }
+
+    public class trackObject
+    {
+        public string id { get; set; }
+        public string fileName { get; set; }
+        public string songName { get; set; }
+    }
+
+
     class MusicManagerManager
     {
         private string currentDir = null;
@@ -77,7 +90,7 @@ namespace P4G_Encount_Music_Editor
 
                 nameObject newName = new nameObject();
                 newName.id = i.ToString();
-                newName.trackName = $"Song Index {newConversion.waveIndex}";
+                newName.trackName = $"(BGME) Song Index {newConversion.waveIndex}";
                 newNamesList[i] = newName;
             }
 
@@ -88,6 +101,28 @@ namespace P4G_Encount_Music_Editor
             string newNamesText = JsonSerializer.Serialize<songnames>(originalNames, new JsonSerializerOptions { WriteIndented = true });
             File.WriteAllText(outputConversionFile, newConversionText);
             File.WriteAllText(outputNamesFile, newNamesText);
+        }
+
+        private originalTracks ParseOriginalTracks(string filePath)
+        {
+            if (!File.Exists(filePath))
+            {
+                Console.WriteLine($"Original tracks file missing! File: {filePath}");
+                return null;
+            }
+
+            try
+            {
+                string tracksJsonString = File.ReadAllText(filePath);
+                originalTracks originalTracksObject = JsonSerializer.Deserialize<originalTracks>(tracksJsonString);
+                return originalTracksObject;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine($"Problem parsing original tracks file! File: {filePath}");
+                return null;
+            }
         }
 
         private songnames ParseNamesFile(string filePath)
