@@ -8,19 +8,33 @@ namespace P4G_Encount_Music_Editor
     class ConfigHandler
     {
         private string currentDir = null;
-        private string patchFilePath = null;
-        private string randomSetsFilePath = null;
 
         public ConfigHandler()
         {
             currentDir = Directory.GetCurrentDirectory();
-            patchFilePath = $@"{currentDir}\original\BGME_Config.patch";
-            randomSetsFilePath = $@"{currentDir}\presets\RandomSets.bgme";
         }
 
         public void RebuildPatch()
         {
+            // set file paths
+            string patchFilePath = $@"{currentDir}\original\BGME_Config.patch";
+            string randomSetsFilePath = $@"{currentDir}\presets\RandomSets.bgme";
+
+            // exit early if missing one of the required files
+            if (!File.Exists(patchFilePath))
+            {
+                Console.WriteLine($"Missing original BGME_Config.patch! File: {patchFilePath}");
+                return;
+            }
+            if (!File.Exists(randomSetsFilePath))
+            {
+                Console.WriteLine($"Missing RandomSets.bgme config file! File: {patchFilePath}");
+                return;
+            }
+
+            // new patch file path
             string newPatchFile = $@"{currentDir}\BGME_Config.patch";
+
             try
             {
                 byte[] patchBytes = File.ReadAllBytes(patchFilePath);
@@ -48,23 +62,27 @@ namespace P4G_Encount_Music_Editor
                     byte[] maxBytes = BitConverter.GetBytes(maxIndex);
 
                     // display
-                    Console.WriteLine($"Random Set: {randSetIndex}");
-                    Console.WriteLine($"Min Index: {minIndex} Bytes: {BitConverter.ToString(minBytes)}");
-                    Console.WriteLine($"Max Index: {maxIndex} Bytes: {BitConverter.ToString(maxBytes)}");
+                    //Console.WriteLine($"Random Set: {randSetIndex}");
+                    //Console.WriteLine($"Min Index: {minIndex} Bytes: {BitConverter.ToString(minBytes)}");
+                    //Console.WriteLine($"Max Index: {maxIndex} Bytes: {BitConverter.ToString(maxBytes)}");
 
                     // copy min and max bytes to main patch bytes array
                     Array.Copy(minBytes, 0, patchBytes, startOffset + 4 * randSetIndex, minBytes.Length);
                     Array.Copy(maxBytes, 0, patchBytes, startOffset + 2 + 4 * randSetIndex, maxBytes.Length);
-                    Console.WriteLine("Copied min and max bytes!");
+                    //Console.WriteLine("Copied min and max bytes!");
                 }
 
                 File.WriteAllBytes($"{newPatchFile}", patchBytes);
+
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"New BGME_Config Patch Created! File: {newPatchFile}");
+                Console.ResetColor();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
                 Console.WriteLine("Problem rebuilding BGME_Config patch!");
+                Console.ReadLine();
             }
         }
     }

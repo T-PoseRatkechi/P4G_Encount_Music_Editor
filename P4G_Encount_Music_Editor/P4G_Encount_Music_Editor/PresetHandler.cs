@@ -60,10 +60,13 @@ namespace P4G_Encount_Music_Editor
             {
                 Console.WriteLine(e);
                 Console.WriteLine("Problem reading preset file!");
+                Console.ReadLine();
             }
 
-            Console.WriteLine("Encounter preset set. Enter to return to menu...");
+            /*
+            Console.WriteLine("Encounter preset set. Enter any key to return to menu...");
             Console.ReadLine();
+            */
         }
 
         private void RunCollectionCommand(Encounter[] encounters, string collectionName, string command)

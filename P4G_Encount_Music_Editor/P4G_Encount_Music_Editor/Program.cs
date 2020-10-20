@@ -5,6 +5,7 @@ using System.Buffers.Binary;
 using static P4G_Encount_Music_Editor.Enums;
 using System.Text;
 using System.Linq;
+using System.Diagnostics;
 
 namespace P4G_Encount_Music_Editor
 {
@@ -28,98 +29,12 @@ namespace P4G_Encount_Music_Editor
 
         private static PresetHandler presetHandler = new PresetHandler();
         private static ConfigHandler config = new ConfigHandler();
-        private static MusicManagerManager musicManager = new MusicManagerManager();
 
         static void Main(string[] args)
         {
             //ParseArkFile();
             SetPaths();
             EditEncount();
-        }
-
-        private static void ParseArkFile()
-        {
-            string arkFile = $@"{Directory.GetCurrentDirectory()}\Encounter_Place_ID.txt";
-            string inEncountPath = $@"{Directory.GetCurrentDirectory()}\original\ENCOUNT.TBL";
-
-            Encounter[] allEncounters = GetEncountersList(inEncountPath);
-
-            string[] arkLines = File.ReadAllLines(arkFile);
-
-            Dictionary<string, List<int>> encountersList = new Dictionary<string, List<int>>();
-
-            foreach(string line in arkLines)
-            {
-                if (!line.Contains('-') || line.Length < 3 || line.StartsWith("//"))
-                    continue;
-
-                int encounterIndex = Int32.Parse(line.Split(" - ")[0].Split(' ')[2]);
-                // get full encounter location/description
-                string encounterLocation = line.Split(" - ")[1];
-                // remove question marks
-                //encounterLocation = encounterLocation.Replace('?', '\0');
-                if (encounterLocation.StartsWith('?'))
-                {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"Encounter {encounterIndex} is unknown!");
-                    //Console.ReadLine();
-                    Console.ResetColor();
-                    continue;
-                }
-
-                encounterLocation = encounterLocation.Replace('?', '\0');
-
-                string locationName = $"{encounterLocation.Split(' ')[0]}{(encounterLocation.Split(' ')[0].ToLower().Equals("heaven") ? "" : $" {encounterLocation.Split(' ')[1]}")}";
-                locationName = locationName.Trim('\0');
-
-                Console.WriteLine($"Encounter Index: {encounterIndex} Location: {locationName}");
-                if (encountersList.ContainsKey(locationName))
-                {
-                    encountersList[locationName].Add(encounterIndex);
-                }
-                else
-                {
-                    encountersList.Add(locationName, new List<int>());
-                    encountersList[locationName].Add(encounterIndex);
-                }
-            }
-
-            StringBuilder parsedFile = new StringBuilder();
-
-            foreach (string locationKey in encountersList.Keys)
-            {
-                string collectionFile = $@"{Directory.GetCurrentDirectory()}\collections\{locationKey}.enc";
-                StringBuilder collectionText = new StringBuilder();
-
-                parsedFile.AppendLine($"{locationKey.ToUpper()}\n#================================================");
-                collectionText.AppendLine($"//{locationKey.ToUpper()}\n//================================================");
-
-                foreach (int encountId in encountersList[locationKey])
-                {
-                    Encounter currentEncounter = allEncounters[encountId];
-                    parsedFile.AppendLine($"Encounter Index: {encountId}");
-                    collectionText.AppendLine($"//Encounter Index:\n{encountId}");
-                    
-                    parsedFile.Append("#Encounter Units: ");
-                    collectionText.Append("//Encounter Units: ");
-
-                    foreach (EnemiesID enemy in currentEncounter.Units)
-                    {
-                        if (enemy != EnemiesID.h000)
-                        {
-                            parsedFile.Append($"{enemy.ToString()}, ");
-                            collectionText.Append($"{enemy.ToString()}, ");
-                        }
-                    }
-                    parsedFile.Append('\n');
-                    collectionText.Append("\n\n");
-                }
-                parsedFile.Append('\n');
-                //collectionText.Append('\n');
-                File.WriteAllText(collectionFile, collectionText.ToString());
-            }
-
-            File.WriteAllText($"{arkFile}.parsed", parsedFile.ToString());
         }
 
         private static void SetPaths()
@@ -160,13 +75,12 @@ namespace P4G_Encount_Music_Editor
 
             do
             {
-                Console.WriteLine("P4G_Encount_Music_Editor");
+                Console.WriteLine("\nP4G_Encount_Music_Editor");
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Run Preset");
-                Console.WriteLine("2. Rebuild Config");
+                Console.WriteLine("2. Rebuild Config Patch");
                 Console.WriteLine("3. Output Encounter List");
-                Console.WriteLine("4. Extend Music Manager Tracklist");
-                Console.WriteLine("0. Exit and Save");
+                Console.WriteLine("0. Save and Exit");
 
                 menuSelection = PromptInt("Menu Selection");
                 switch (menuSelection)
@@ -180,37 +94,58 @@ namespace P4G_Encount_Music_Editor
                     case 3:
                         OutputEncounterList(allBattles);
                         break;
-                    case 4:
-                        musicManager.ExtendSongsList();
-                        break;
                     default:
                         break;
                 }
 
             } while (menuSelection != 0);
 
-            // write edited encounter tbl
-            using (BinaryWriter writer = new BinaryWriter(File.Open(outEncountPath, FileMode.Create)))
+            try
             {
-                using BinaryReader reader = new BinaryReader(File.Open(inEncountPath, FileMode.Open));
-                UInt32 size = reader.ReadUInt32();
-                writer.Write(size);
-                foreach (Encounter battle in allBattles)
+                // write edited encounter tbl
+                using (BinaryWriter writer = new BinaryWriter(File.Open(outEncountPath, FileMode.Create)))
                 {
-                    writer.Write(battle.Flags);
-                    writer.Write(battle.Field04);
-                    writer.Write(battle.Field06);
-                    foreach (EnemiesID enemy in battle.Units)
+                    using BinaryReader reader = new BinaryReader(File.Open(inEncountPath, FileMode.Open));
+                    UInt32 size = reader.ReadUInt32();
+                    writer.Write(size);
+                    foreach (Encounter battle in allBattles)
                     {
-                        writer.Write((ushort)enemy);
+                        writer.Write(battle.Flags);
+                        writer.Write(battle.Field04);
+                        writer.Write(battle.Field06);
+                        foreach (EnemiesID enemy in battle.Units)
+                        {
+                            writer.Write((ushort)enemy);
+                        }
+                        writer.Write(battle.FieldId);
+                        writer.Write(battle.RoomId);
+                        writer.Write(battle.MusicId);
                     }
-                    writer.Write(battle.FieldId);
-                    writer.Write(battle.RoomId);
-                    writer.Write(battle.MusicId);
+                    reader.BaseStream.Seek(size, SeekOrigin.Current);
+                    writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
                 }
-                reader.BaseStream.Seek(size, SeekOrigin.Current);
-                writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
+
+                string aemPatcherPath = $@"{currentDir}\Aem_TBL_Patcher.exe";
+                if (File.Exists(aemPatcherPath))
+                {
+                    Console.WriteLine("Aem TBL Patcher detected! Create tblpatches now?");
+                    Console.WriteLine("0. Yes\n1. No");
+                    int choice = PromptInt("Choice");
+                    if (choice == 0)
+                    {
+                        Process aemPatcher = Process.Start(new ProcessStartInfo(aemPatcherPath));
+                        aemPatcher.WaitForExit();
+                    }
+                }
             }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Problem saving modified ENCOUNT.TBL!");
+            }
+
+            // rebuild config patch
+            config.RebuildPatch();
         }
 
         private static void OutputEncounterList(Encounter[] encounters)
@@ -231,6 +166,7 @@ namespace P4G_Encount_Music_Editor
                 }
 
                 File.WriteAllText(listFilePath, listText.ToString());
+                Console.WriteLine($"Parsed encounter list written to: {listFilePath}");
             }
             catch (Exception e)
             {
@@ -256,6 +192,8 @@ namespace P4G_Encount_Music_Editor
                     Console.WriteLine("Couldn't parse numer!");
                 }
             }
+
+            Console.WriteLine();
 
             return theNumber;
         }
