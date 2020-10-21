@@ -79,8 +79,7 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine("\nP4G_Encount_Music_Editor");
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Run Preset");
-                Console.WriteLine("2. Rebuild Config Patch");
-                Console.WriteLine("3. Output Encounter List");
+                Console.WriteLine("2. Output Encounter List");
                 Console.WriteLine("0. Save and Exit");
 
                 menuSelection = PromptInt("Menu Selection");
@@ -90,9 +89,6 @@ namespace P4G_Encount_Music_Editor
                         presetHandler.RunPreset(allBattles);
                         break;
                     case 2:
-                        config.BuildPatch();
-                        break;
-                    case 3:
                         OutputEncounterList(allBattles);
                         break;
                     default:
