@@ -50,6 +50,7 @@ namespace P4G_Encount_Music_Editor
                 Directory.CreateDirectory(originalFolderDir);
                 Directory.CreateDirectory(moddedFolderDir);
                 Directory.CreateDirectory(presetsFolderDir);
+                Directory.CreateDirectory($@"{currentDir}\collections");
             }
             catch (Exception e)
             {
@@ -89,7 +90,7 @@ namespace P4G_Encount_Music_Editor
                         presetHandler.RunPreset(allBattles);
                         break;
                     case 2:
-                        config.RebuildPatch();
+                        config.BuildPatch();
                         break;
                     case 3:
                         OutputEncounterList(allBattles);
@@ -145,7 +146,7 @@ namespace P4G_Encount_Music_Editor
             }
 
             // rebuild config patch
-            config.RebuildPatch();
+            config.BuildPatch();
         }
 
         private static void OutputEncounterList(Encounter[] encounters)

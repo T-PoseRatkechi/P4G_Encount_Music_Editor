@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Text.RegularExpressions;
 using static P4G_Encount_Music_Editor.Program;
 
 namespace P4G_Encount_Music_Editor
@@ -10,6 +11,7 @@ namespace P4G_Encount_Music_Editor
     {
         private string currentDir = null;
         private string presetsFolderDir = null;
+        private ConfigHandler config = new ConfigHandler();
 
         public PresetHandler()
         {
@@ -36,87 +38,93 @@ namespace P4G_Encount_Music_Editor
 
                     string[] lineArgs = line.Split("=");
 
+                    string item = lineArgs[0];
+                    string command = lineArgs[1];
+
+                    // parse command to get new music id
+                    ushort newMusicId = ParseCommand(command);
+
                     // line is a command
                     if (lineArgs[0].StartsWith('.'))
                     {
-                        string collection = lineArgs[0].Substring(1);
-                        string command = lineArgs[1];
-                        RunCollectionCommand(encounters, collection, lineArgs[1]);
+                        string collection = item.Substring(1);
+                        RunCollectionCommand(encounters, collection, newMusicId);
                     }
                     else
                     {
                         int encounterIndex = Int32.Parse(lineArgs[0]);
-                        ushort songIndex = UInt16.Parse(lineArgs[1]);
 
                         Console.ForegroundColor = ConsoleColor.Cyan;
                         Console.WriteLine("Direct Edit");
                         Console.ResetColor();
-                        Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {songIndex}");
-                        encounters[encounterIndex].MusicId = songIndex;
+                        Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {newMusicId}");
+                        encounters[encounterIndex].MusicId = newMusicId;
                     }
                 }
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                Console.WriteLine("Problem reading preset file!");
+                Console.Write("Problem reading preset file! Enter any key to return to menu...");
                 Console.ReadLine();
             }
-
-            /*
-            Console.WriteLine("Encounter preset set. Enter any key to return to menu...");
-            Console.ReadLine();
-            */
         }
 
-        private void RunCollectionCommand(Encounter[] encounters, string collectionName, string command)
+        private ushort ParseCommand(string command)
         {
-            Console.ForegroundColor = ConsoleColor.Cyan;
-            Console.WriteLine($"Collection {collectionName.ToUpper()}:");
-            Console.ResetColor();
+            ushort musicId = 0;
 
-            // store new music id to set to encounters
-            ushort newMusicId = 0;
-
-            // random set
-            if (command.StartsWith('.'))
+            if (command.StartsWith("random"))
             {
-                if (command.StartsWith(".random"))
+                try
                 {
-                    try
-                    {
-                        ushort randSetIndex = UInt16.Parse(command.Split('-')[1]);
-                        newMusicId = (ushort)(randSetIndex + 8192);
-                        Console.WriteLine($"Using Random Set: {randSetIndex}, Song Index: {newMusicId}");
-                    }
-                    catch (Exception e)
-                    {
-                        Console.WriteLine(e);
-                        Console.WriteLine("Problem parsing random set Song Index!");
-                    }
+                    // regex for parsing functions: https://stackoverflow.com/questions/18906514/regex-for-matching-functions-and-capturing-their-arguments/18908330
+                    var functionMatch = Regex.Match(command, @"\b[^()]+\((.*)\)$");
+                    string innerArgs = functionMatch.Groups[1].Value;
+                    var argMatches = Regex.Matches(innerArgs, @"([^,]+\(.+?\))|([^,]+)");
+                    string arg1 = argMatches[0].Value;
+                    string arg2 = argMatches[1].Value;
+
+                    ushort minIndex = ushort.Parse(arg1);
+                    ushort maxIndex = ushort.Parse(arg2);
+
+                    musicId = config.GetRandomSetIndex(minIndex, maxIndex);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine("Problem parsing random args!");
                 }
             }
             else
             {
                 try
                 {
-                    newMusicId = UInt16.Parse(command);
-                    Console.WriteLine($"Using Song Index: {newMusicId}");
+                    musicId = ushort.Parse(command);
                 }
                 catch (Exception e)
                 {
                     Console.WriteLine(e);
-                    Console.WriteLine("Problem parsing Song Index!");
+                    Console.WriteLine("Could not parse song index!");
                 }
             }
+
+            return musicId;
+        }
+
+        private void RunCollectionCommand(Encounter[] encounters, string collectionName, ushort waveIndex)
+        {
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine($"Collection {collectionName.ToUpper()}:");
+            Console.ResetColor();
 
             switch (collectionName)
             {
                 case "all":
-                    Console.WriteLine($"Setting All Encounter Music IDs to: {newMusicId}");
+                    Console.WriteLine($"Setting All Encounter Music IDs to: {waveIndex}");
                     for (int i = 0, total = encounters.Length; i < total; i++)
                     {
-                        encounters[i].MusicId = newMusicId;
+                        encounters[i].MusicId = waveIndex;
                     }
                     break;
                 default:
@@ -132,6 +140,8 @@ namespace P4G_Encount_Music_Editor
 
                         string[] collectionLines = File.ReadAllLines(collectionFilePath);
 
+                        int numEncounters = 0;
+
                         foreach (string line in collectionLines)
                         {
                             // skip comment lines and new lines
@@ -141,8 +151,9 @@ namespace P4G_Encount_Music_Editor
                             try
                             {
                                 int encounterIndex = Int32.Parse(line);
-                                Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {newMusicId}");
-                                encounters[encounterIndex].MusicId = newMusicId;
+                                //Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {waveIndex}");
+                                encounters[encounterIndex].MusicId = waveIndex;
+                                numEncounters++;
                             }
                             catch (Exception e)
                             {
@@ -150,6 +161,8 @@ namespace P4G_Encount_Music_Editor
                                 Console.WriteLine($"Could not parse Encounter Index in collection: {collectionName}");
                             }
                         }
+
+                        Console.WriteLine($"Set {numEncounters} encounters to Song Index: {waveIndex}");
                     }
                     catch (Exception e)
                     {

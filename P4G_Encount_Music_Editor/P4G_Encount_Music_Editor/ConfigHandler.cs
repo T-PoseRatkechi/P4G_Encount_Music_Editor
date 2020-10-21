@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace P4G_Encount_Music_Editor
@@ -8,27 +9,61 @@ namespace P4G_Encount_Music_Editor
     class ConfigHandler
     {
         private string currentDir = null;
+        private static Dictionary<ushort, ushort[]> randSets = new Dictionary<ushort, ushort[]>();
 
         public ConfigHandler()
         {
             currentDir = Directory.GetCurrentDirectory();
         }
 
-        public void RebuildPatch()
+        public ushort GetRandomSetIndex(ushort minIndex, ushort maxIndex)
+        {
+            ushort randomSetIndex = 0;
+
+            // random index range for comparison
+            ushort[] randomRange = new ushort[] { minIndex, maxIndex };
+
+            // see if range already exists in dictionary
+            KeyValuePair<ushort, ushort[]> dictionaryMatch = randSets.FirstOrDefault(sets => sets.Value.SequenceEqual(randomRange));
+
+            // add entry for index range to dictionary
+            if (dictionaryMatch.Value == null)
+            {
+                Console.WriteLine("New Random Set detected!");
+                // limit of 15 possible random sets
+                if (randSets.Count < 15)
+                {
+                    int totalSets = randSets.Count;
+                    randomSetIndex = (ushort)(8192 + totalSets);
+                    randSets.Add(randomSetIndex, randomRange);
+                    Console.WriteLine($"Random Set added!\nRandSet ID: {totalSets}, Range: [{minIndex}, {maxIndex}), Wave Index: {randomSetIndex}");
+                }
+                else
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("Max 15 randomized sets limit reached! Defaulting to first set!");
+                    Console.ResetColor();
+                    randomSetIndex = 8192;
+                }
+            }
+            else
+            {
+                // set key from match as randSetIndex to use
+                randomSetIndex = dictionaryMatch.Key;
+            }
+
+            return randomSetIndex;
+        }
+
+        public void BuildPatch()
         {
             // set file paths
             string patchFilePath = $@"{currentDir}\original\BGME_Config.patch";
-            string randomSetsFilePath = $@"{currentDir}\presets\RandomSets.bgme";
 
             // exit early if missing one of the required files
             if (!File.Exists(patchFilePath))
             {
                 Console.WriteLine($"Missing original BGME_Config.patch! File: {patchFilePath}");
-                return;
-            }
-            if (!File.Exists(randomSetsFilePath))
-            {
-                Console.WriteLine($"Missing RandomSets.bgme config file! File: {patchFilePath}");
                 return;
             }
 
@@ -40,22 +75,16 @@ namespace P4G_Encount_Music_Editor
                 byte[] patchBytes = File.ReadAllBytes(patchFilePath);
                 int startOffset = 134;
 
-                string[] randomSetsLines = File.ReadAllLines(randomSetsFilePath);
+                //string[] randomSetsLines = File.ReadAllLines(randomSetsFilePath);
 
-                foreach (string line in randomSetsLines)
+                foreach (KeyValuePair<ushort, ushort[]> set in randSets)
                 {
-                    // skip pointless lines
-                    if (line.StartsWith('/') || line.StartsWith('#') || line.Length < 1)
-                        continue;
+                    // calculate randset index for patch
+                    int randSetIndex = set.Key - 8192;
 
-                    // split line to parts
-                    string[] lineParts = line.Split('=');
-
-                    // parse rand set index
-                    int randSetIndex = Int32.Parse(lineParts[0]);
                     // parse min and max song indexes
-                    ushort minIndex = UInt16.Parse(lineParts[1].Split(',')[0]);
-                    ushort maxIndex = UInt16.Parse(lineParts[1].Split(',')[1]);
+                    ushort minIndex = set.Value[0];
+                    ushort maxIndex = set.Value[1];
 
                     // convert min and max to bytes
                     byte[] minBytes = BitConverter.GetBytes(minIndex);
@@ -66,10 +95,8 @@ namespace P4G_Encount_Music_Editor
                     //Console.WriteLine($"Min Index: {minIndex} Bytes: {BitConverter.ToString(minBytes)}");
                     //Console.WriteLine($"Max Index: {maxIndex} Bytes: {BitConverter.ToString(maxBytes)}");
 
-                    // copy min and max bytes to main patch bytes array
                     Array.Copy(minBytes, 0, patchBytes, startOffset + 4 * randSetIndex, minBytes.Length);
                     Array.Copy(maxBytes, 0, patchBytes, startOffset + 2 + 4 * randSetIndex, maxBytes.Length);
-                    //Console.WriteLine("Copied min and max bytes!");
                 }
 
                 File.WriteAllBytes($"{newPatchFile}", patchBytes);
