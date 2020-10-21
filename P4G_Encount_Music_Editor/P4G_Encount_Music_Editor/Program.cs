@@ -122,6 +122,9 @@ namespace P4G_Encount_Music_Editor
                     writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
                 }
 
+                // rebuild config patch
+                config.BuildPatch();
+
                 string aemPatcherPath = $@"{currentDir}\Aem_TBL_Patcher.exe";
                 if (File.Exists(aemPatcherPath))
                 {
@@ -140,9 +143,6 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine(e);
                 Console.WriteLine("Problem saving modified ENCOUNT.TBL!");
             }
-
-            // rebuild config patch
-            config.BuildPatch();
         }
 
         private static void OutputEncounterList(Encounter[] encounters)
