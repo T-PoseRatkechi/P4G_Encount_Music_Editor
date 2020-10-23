@@ -45,6 +45,32 @@ namespace P4G_Encount_Music_Editor
             EditEncount();
         }
 
+        private static void GenSierraPreset()
+        {
+            string originalEncount = $@"{currentDir}\original\ENCOUNT.TBL";
+            string sierraEncount = $@"{currentDir}\modded\ENCOUNT.TBL";
+
+            Encounter[] originalEncounters = GetEncountersList(originalEncount);
+            Encounter[] sierraEncounters = GetEncountersList(sierraEncount);
+
+            StringBuilder presetText = new StringBuilder();
+
+            for (int i = 0, total = originalEncounters.Length; i < total; i++)
+            {
+                Encounter original = originalEncounters[i];
+                Encounter sierra = sierraEncounters[i];
+
+                if (original.MusicId != sierra.MusicId)
+                {
+                    Console.WriteLine("Found mismatch!");
+                    presetText.AppendLine($"// Enemy: {(P5_EnemiesID)original.Units[0]}");
+                    presetText.AppendLine($"{i}={sierra.MusicId}");
+                }
+            }
+
+            File.WriteAllText($@"{currentDir}\test.preset", presetText.ToString());
+        }
+
         private static void SetPaths()
         {
             currentDir = Directory.GetCurrentDirectory();
@@ -90,6 +116,7 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Run Preset");
                 Console.WriteLine("2. Output Encounter List");
+                Console.WriteLine("3. Collection Creation");
                 Console.WriteLine("0. Save and Exit");
 
                 menuSelection = PromptInt("Menu Selection");
@@ -296,7 +323,15 @@ namespace P4G_Encount_Music_Editor
                     break;
 
                 string[] searchTerms = searchString.Split(' ');
+                bool searchByOccurence = false;
 
+                if (searchTerms.Length == 1)
+                {
+                    Console.WriteLine("Only match encounters that contain ONE instance of search term (y) or any amount (n)?");
+                    searchByOccurence = PromptYN("(y/n)");
+                }
+
+                int totalMatches = 0;
                 for (int i = 0, total = encounters.Length; i < total; i++)
                 {
                     Encounter currentEncounter = encounters[i];
@@ -305,11 +340,21 @@ namespace P4G_Encount_Music_Editor
 
                     if (searchTerms.Length == 1)
                     {
-                        //Console.WriteLine("Searching for one term...");
-                        if (ContainsUnitTerm(currentEncounter.Units, searchTerms[0], 1))
+                        if (searchByOccurence)
                         {
-                            Console.WriteLine("Found match!");
-                            foundMatch = true;
+                            if (ContainsUnitTerm(currentEncounter.Units, searchTerms[0], 1))
+                            {
+                                Console.WriteLine("Found match!");
+                                foundMatch = true;
+                            }
+                        }
+                        else
+                        {
+                            if (ContainsUnitTerm(currentEncounter.Units, searchTerms[0]))
+                            {
+                                Console.WriteLine("Found match!");
+                                foundMatch = true;
+                            }
                         }
                     }
                     else
@@ -332,12 +377,19 @@ namespace P4G_Encount_Music_Editor
                     // add to encounters list if match was found
                     if (foundMatch)
                     {
-                        Console.WriteLine($"EncounterID: {i} - Added match to collection list!");
-                        string allEnemies = $"// {GetEnemyName(gameID, currentEncounter.Units[0])}, {GetEnemyName(gameID, currentEncounter.Units[1])}," +
-                            $"{GetEnemyName(gameID, currentEncounter.Units[2])}, {GetEnemyName(gameID, currentEncounter.Units[3])}, {GetEnemyName(gameID, currentEncounter.Units[4])}";
-                        encounterMatches.Add((ushort)i, allEnemies);
+                        totalMatches++;
+                        ushort matchKey = (ushort)i;
+                        if (!encounterMatches.ContainsKey(matchKey))
+                        {
+                            Console.WriteLine($"EncounterID: {i} - Added match to collection list!");
+                            string allEnemies = $"// {GetEnemyName(gameID, currentEncounter.Units[0])}, {GetEnemyName(gameID, currentEncounter.Units[1])}, " +
+                                $"{GetEnemyName(gameID, currentEncounter.Units[2])}, {GetEnemyName(gameID, currentEncounter.Units[3])}, {GetEnemyName(gameID, currentEncounter.Units[4])}";
+                            encounterMatches.Add((ushort)i, allEnemies);
+                        }
                     }
                 }
+
+                Console.WriteLine($"Total Matches: {totalMatches}");
             }
 
             string collectionName = PromptString("Collection Name (Lowercase)").ToLower();
