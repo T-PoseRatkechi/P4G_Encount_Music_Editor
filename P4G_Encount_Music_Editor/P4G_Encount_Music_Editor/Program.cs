@@ -382,9 +382,13 @@ namespace P4G_Encount_Music_Editor
                         if (!encounterMatches.ContainsKey(matchKey))
                         {
                             Console.WriteLine($"EncounterID: {i} - Added match to collection list!");
-                            string allEnemies = $"// {GetEnemyName(gameID, currentEncounter.Units[0])}, {GetEnemyName(gameID, currentEncounter.Units[1])}, " +
-                                $"{GetEnemyName(gameID, currentEncounter.Units[2])}, {GetEnemyName(gameID, currentEncounter.Units[3])}, {GetEnemyName(gameID, currentEncounter.Units[4])}";
-                            encounterMatches.Add((ushort)i, allEnemies);
+                            StringBuilder enemiesList = new StringBuilder();
+                            enemiesList.Append("//");
+                            foreach (ushort enemyId in currentEncounter.Units)
+                                enemiesList.Append($"{GetEnemyName(enemyId)}, ");
+                            enemiesList.Append('\n');
+
+                            encounterMatches.Add((ushort)i, enemiesList.ToString());
                         }
                     }
                 }
@@ -398,7 +402,7 @@ namespace P4G_Encount_Music_Editor
 
             if (File.Exists(collectionFilePath))
             {
-                Console.WriteLine("Add encounters to existing collection?");
+                Console.WriteLine("Collection exists! Append to collection (y) or overwrite (n)?");
                 addToFile = PromptYN("(y/n)");
             }
 
@@ -469,7 +473,7 @@ namespace P4G_Encount_Music_Editor
         {
             foreach (ushort unit in units)
             {
-                string unitName = GetEnemyName(gameID, unit).ToLower();
+                string unitName = GetEnemyName(unit).ToLower();
                 if (unitName.Contains(term))
                     return true;
             }
@@ -482,7 +486,7 @@ namespace P4G_Encount_Music_Editor
             int matchCount = 0;
             foreach (ushort unit in units)
             {
-                string unitName = GetEnemyName(gameID, unit).ToLower();
+                string unitName = GetEnemyName(unit).ToLower();
                 if (unitName.Contains(term))
                     matchCount++;
             }
@@ -493,11 +497,11 @@ namespace P4G_Encount_Music_Editor
                 return false;
         }
 
-        private static string GetEnemyName(int gameId, ushort enemyId)
+        private static string GetEnemyName(ushort enemyId)
         {
-            if (gameId == 4)
+            if (gameID == 4)
                 return ((P4_EnemiesID)enemyId).ToString();
-            if (gameId == 5)
+            if (gameID == 5)
                 return ((P5_EnemiesID)enemyId).ToString();
             else
                 return null;
@@ -510,7 +514,7 @@ namespace P4G_Encount_Music_Editor
             bool useBigEndian = false;
             if (gameID == 5)
             {
-                Console.WriteLine("Reading Encount.tbl in Big Endian!");
+                //Console.WriteLine("Reading Encount.tbl in Big Endian!");
                 useBigEndian = true;
             }
 
@@ -521,7 +525,7 @@ namespace P4G_Encount_Music_Editor
                 using BinaryReader reader = new BinaryReader(File.Open(encountPath, FileMode.Open));
                 // 4 byte size integer
                 UInt32 size = useBigEndian ? BinaryPrimitives.ReadUInt32BigEndian(reader.ReadBytes(4)) : reader.ReadUInt32();
-                Console.WriteLine($"Encount Size: {size}");
+                //Console.WriteLine($"Encount Size: {size}");
 
                 for (int bytesRead = 4; bytesRead < size; bytesRead += 24)
                 {
