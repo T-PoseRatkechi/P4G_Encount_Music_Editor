@@ -95,7 +95,7 @@ namespace P4G_Encount_Music_Editor
                         OutputEncounterList(allBattles);
                         break;
                     case 3:
-                        GenCollection(allBattles);
+                        //GenCollection(allBattles);
                         //OutputEncounterList(allBattles);
                         break;
                     default:
