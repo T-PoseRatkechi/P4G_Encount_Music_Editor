@@ -327,7 +327,7 @@ namespace P4G_Encount_Music_Editor
 
                 if (searchTerms.Length == 1)
                 {
-                    Console.WriteLine("Only match encounters that contain ONE instance of search term (y) or any amount (n)?");
+                    Console.WriteLine("Match encounters that contain only ONE instance (y) or any amount (n) of Search Term?");
                     searchByOccurence = PromptYN("(y/n)");
                 }
 
