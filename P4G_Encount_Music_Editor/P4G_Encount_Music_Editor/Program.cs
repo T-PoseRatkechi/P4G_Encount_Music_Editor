@@ -16,7 +16,7 @@ namespace P4G_Encount_Music_Editor
             public byte[] Flags { get; set; }
             public ushort Field04 { get; set; }
             public ushort Field06 { get; set; }
-            public EnemiesID[] Units { get; set; }
+            public P4_EnemiesID[] Units { get; set; }
             public ushort FieldId { get; set; }
             public ushort RoomId { get; set; }
             public ushort MusicId { get; set; }
@@ -117,7 +117,7 @@ namespace P4G_Encount_Music_Editor
                         writer.Write(battle.Flags);
                         writer.Write(battle.Field04);
                         writer.Write(battle.Field06);
-                        foreach (EnemiesID enemy in battle.Units)
+                        foreach (P4_EnemiesID enemy in battle.Units)
                         {
                             writer.Write((ushort)enemy);
                         }
@@ -181,7 +181,7 @@ namespace P4G_Encount_Music_Editor
                 for (int i = 0, total = encounters.Length; i < total; i++)
                 {
                     listText.AppendLine($"Encounter Index: {i} Song Index: {encounters[i].MusicId}");
-                    foreach(EnemiesID enemy in encounters[i].Units)
+                    foreach(P4_EnemiesID enemy in encounters[i].Units)
                     {
                         listText.AppendLine(enemy.ToString());
                     }
@@ -242,7 +242,7 @@ namespace P4G_Encount_Music_Editor
                 List<int> matchEncounters = new List<int>();
                 Encounter enc = encounters[i];
 
-                foreach (EnemiesID enemy in enc.Units)
+                foreach (P4_EnemiesID enemy in enc.Units)
                 {
                     string enemyName = enemy.ToString().ToLower();
 
@@ -251,7 +251,7 @@ namespace P4G_Encount_Music_Editor
                         Console.WriteLine("Found Match!");
                         collectionText.AppendLine(i.ToString());
                         collectionText.Append("//");
-                        foreach (EnemiesID subenemy in enc.Units)
+                        foreach (P4_EnemiesID subenemy in enc.Units)
                             collectionText.Append($"{subenemy.ToString()},");
                         collectionText.Append('\n');
                         break;
@@ -280,7 +280,7 @@ namespace P4G_Encount_Music_Editor
                     currentEncounter.Flags = reader.ReadBytes(4);
                     currentEncounter.Field04 = reader.ReadUInt16();
                     currentEncounter.Field06 = reader.ReadUInt16();
-                    currentEncounter.Units = new EnemiesID[] { (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16(), (EnemiesID)reader.ReadUInt16() };
+                    currentEncounter.Units = new P4_EnemiesID[] { (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16() };
                     currentEncounter.FieldId = reader.ReadUInt16();
                     currentEncounter.RoomId = reader.ReadUInt16();
                     currentEncounter.MusicId = reader.ReadUInt16();
@@ -298,9 +298,9 @@ namespace P4G_Encount_Music_Editor
             return allEncounters.ToArray();
         }
 
-        public static void DisplayEnemiesList(EnemiesID[] enemies)
+        public static void DisplayEnemiesList(P4_EnemiesID[] enemies)
         {
-            foreach (EnemiesID enemy in enemies)
+            foreach (P4_EnemiesID enemy in enemies)
             {
                 Console.WriteLine($"ID: {(int)enemy} Name: {enemy}");
             }
