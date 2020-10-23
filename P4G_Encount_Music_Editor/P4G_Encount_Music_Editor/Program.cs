@@ -94,6 +94,10 @@ namespace P4G_Encount_Music_Editor
                     case 2:
                         OutputEncounterList(allBattles);
                         break;
+                    case 3:
+                        GenCollection(allBattles);
+                        //OutputEncounterList(allBattles);
+                        break;
                     default:
                         break;
                 }
@@ -214,6 +218,48 @@ namespace P4G_Encount_Music_Editor
             Console.WriteLine();
 
             return theNumber;
+        }
+
+        // should be full thing, find encounters that contain an enemy and gen a collection
+        private static void GenCollection(Encounter[] encounters)
+        {
+            StringBuilder collectionText = new StringBuilder();
+
+            string[] goldenHandsList = new string[]
+            {
+                "happinesshand",
+                "wealthhand",
+                "richhand",
+                "supremehand",
+                "opulenthand",
+                "luxuryhand",
+                "glorioushand",
+                "isolatedhand"
+            };
+
+            for (int i = 0, total = encounters.Length; i < total; i++)
+            {
+                List<int> matchEncounters = new List<int>();
+                Encounter enc = encounters[i];
+
+                foreach (EnemiesID enemy in enc.Units)
+                {
+                    string enemyName = enemy.ToString().ToLower();
+
+                    if (Array.Exists(goldenHandsList, hand => hand.Equals(enemyName)))
+                    {
+                        Console.WriteLine("Found Match!");
+                        collectionText.AppendLine(i.ToString());
+                        collectionText.Append("//");
+                        foreach (EnemiesID subenemy in enc.Units)
+                            collectionText.Append($"{subenemy.ToString()},");
+                        collectionText.Append('\n');
+                        break;
+                    }
+                }
+            }
+
+            File.WriteAllText($@"{currentDir}\test.txt", collectionText.ToString());
         }
 
         private static Encounter[] GetEncountersList(string encountPath)
