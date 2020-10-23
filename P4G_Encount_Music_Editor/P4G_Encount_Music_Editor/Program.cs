@@ -319,8 +319,9 @@ namespace P4G_Encount_Music_Editor
                         // if multiple terms, check for each term in current encounter units
                         foreach (var term in searchTerms)
                         {
+                            int count = searchTerms.Count(s => s.Equals(term));
                             // if encounter does not contain a term match not made
-                            if (!ContainsUnitTerm(currentEncounter.Units, term))
+                            if (!ContainsUnitTerm(currentEncounter.Units, term, count))
                             {
                                 foundMatch = false;
                                 break;
@@ -422,6 +423,22 @@ namespace P4G_Encount_Music_Editor
             }
 
             return false;
+        }
+
+        private static bool ContainsUnitTerm(ushort[] units, string term, int count)
+        {
+            int matchCount = 0;
+            foreach (ushort unit in units)
+            {
+                string unitName = GetEnemyName(gameID, unit).ToLower();
+                if (unitName.Contains(term))
+                    matchCount++;
+            }
+
+            if (matchCount == count)
+                return true;
+            else
+                return false;
         }
 
         private static string GetEnemyName(int gameId, ushort enemyId)
