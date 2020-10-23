@@ -68,10 +68,15 @@ namespace P4G_Encount_Music_Editor
             }
 
             // new patch file path
-            string newPatchFile = $@"{currentDir}\modded\BGME_Config.patch";
+            string newPatchFile = $@"{currentDir}\BGME Aemulus Package\patches\BGME_Config.patch";
 
             try
             {
+                if (!Directory.Exists(Path.GetDirectoryName(newPatchFile)))
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(newPatchFile));
+                }
+
                 byte[] patchBytes = File.ReadAllBytes(patchFilePath);
                 int startOffset = 134;
 
@@ -99,7 +104,7 @@ namespace P4G_Encount_Music_Editor
                     Array.Copy(maxBytes, 0, patchBytes, startOffset + 2 + 4 * randSetIndex, maxBytes.Length);
                 }
 
-                File.WriteAllBytes($"{newPatchFile}", patchBytes);
+                File.WriteAllBytes(newPatchFile, patchBytes);
 
                 Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine($"New BGME_Config Patch Created! File: {newPatchFile}");

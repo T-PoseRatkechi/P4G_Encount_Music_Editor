@@ -26,6 +26,7 @@ namespace P4G_Encount_Music_Editor
         private static string originalFolderDir = null;
         private static string moddedFolderDir = null;
         private static string presetsFolderDir = null;
+        private static string packageFolderDir = null;
 
         private static PresetHandler presetHandler = new PresetHandler();
         private static ConfigHandler config = new ConfigHandler();
@@ -43,6 +44,7 @@ namespace P4G_Encount_Music_Editor
             originalFolderDir = $@"{currentDir}\original";
             moddedFolderDir = $@"{currentDir}\modded";
             presetsFolderDir = $@"{currentDir}\presets";
+            packageFolderDir = $@"{currentDir}\BGME Aemulus Package";
 
             // create folders if needed
             try
@@ -51,6 +53,7 @@ namespace P4G_Encount_Music_Editor
                 Directory.CreateDirectory(moddedFolderDir);
                 Directory.CreateDirectory(presetsFolderDir);
                 Directory.CreateDirectory($@"{currentDir}\collections");
+                Directory.CreateDirectory(packageFolderDir);
             }
             catch (Exception e)
             {
@@ -122,21 +125,39 @@ namespace P4G_Encount_Music_Editor
                     writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
                 }
 
-                // rebuild config patch
-                config.BuildPatch();
-
+                // make tblpatches
                 string aemPatcherPath = $@"{currentDir}\Aem_TBL_Patcher.exe";
                 if (File.Exists(aemPatcherPath))
                 {
-                    Console.WriteLine("Aem TBL Patcher detected! Create tblpatches now?");
-                    Console.WriteLine("0. Yes\n1. No");
-                    int choice = PromptInt("Choice");
-                    if (choice == 0)
+                    //Console.WriteLine("Aem TBL Patcher detected! Create tblpatches now?");
+                    //Console.WriteLine("0. Yes\n1. No");
+                    //int choice = PromptInt("Choice");
+                    Process aemPatcher = Process.Start(new ProcessStartInfo(aemPatcherPath));
+                    aemPatcher.WaitForExit();
+
+                    if (aemPatcher.ExitCode == 0)
                     {
-                        Process aemPatcher = Process.Start(new ProcessStartInfo(aemPatcherPath));
-                        aemPatcher.WaitForExit();
+                        try
+                        {
+                            // delete all current files in package folder
+                            foreach (string file in Directory.GetFiles($@"{packageFolderDir}"))
+                                File.Delete(file);
+
+                            // copy tbl patches to package folder
+                            foreach (string file in Directory.GetFiles($@"{currentDir}\patches"))
+                                File.Copy(file, $@"{packageFolderDir}\{Path.GetFileName(file)}");
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine(e);
+                            Console.WriteLine("Problem copying patches to Aemulus package!");
+                        }
                     }
+
                 }
+
+                // rebuild config patch
+                config.BuildPatch();
             }
             catch (Exception e)
             {
