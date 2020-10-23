@@ -306,7 +306,7 @@ namespace P4G_Encount_Music_Editor
                     if (searchTerms.Length == 1)
                     {
                         //Console.WriteLine("Searching for one term...");
-                        if (ContainsUnitTerm(currentEncounter.Units, searchTerms[0]))
+                        if (ContainsUnitTerm(currentEncounter.Units, searchTerms[0], 1))
                         {
                             Console.WriteLine("Found match!");
                             foundMatch = true;
@@ -449,48 +449,6 @@ namespace P4G_Encount_Music_Editor
                 return ((P5_EnemiesID)enemyId).ToString();
             else
                 return null;
-        }
-
-        // should be full thing, find encounters that contain an enemy and gen a collection
-        private static void GenCollection(Encounter[] encounters)
-        {
-            StringBuilder collectionText = new StringBuilder();
-
-            string[] goldenHandsList = new string[]
-            {
-                "happinesshand",
-                "wealthhand",
-                "richhand",
-                "supremehand",
-                "opulenthand",
-                "luxuryhand",
-                "glorioushand",
-                "isolatedhand"
-            };
-
-            for (int i = 0, total = encounters.Length; i < total; i++)
-            {
-                List<int> matchEncounters = new List<int>();
-                Encounter enc = encounters[i];
-
-                foreach (P4_EnemiesID enemy in enc.Units)
-                {
-                    string enemyName = enemy.ToString().ToLower();
-
-                    if (Array.Exists(goldenHandsList, hand => hand.Equals(enemyName)))
-                    {
-                        Console.WriteLine("Found Match!");
-                        collectionText.AppendLine(i.ToString());
-                        collectionText.Append("//");
-                        foreach (P4_EnemiesID subenemy in enc.Units)
-                            collectionText.Append($"{subenemy.ToString()},");
-                        collectionText.Append('\n');
-                        break;
-                    }
-                }
-            }
-
-            File.WriteAllText($@"{currentDir}\test.txt", collectionText.ToString());
         }
 
         private static Encounter[] GetEncountersList(string encountPath)
