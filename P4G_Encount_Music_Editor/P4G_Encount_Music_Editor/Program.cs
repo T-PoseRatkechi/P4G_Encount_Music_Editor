@@ -16,7 +16,7 @@ namespace P4G_Encount_Music_Editor
             public byte[] Flags { get; set; }
             public ushort Field04 { get; set; }
             public ushort Field06 { get; set; }
-            public P4_EnemiesID[] Units { get; set; }
+            public ushort[] Units { get; set; }
             public ushort FieldId { get; set; }
             public ushort RoomId { get; set; }
             public ushort MusicId { get; set; }
@@ -31,10 +31,17 @@ namespace P4G_Encount_Music_Editor
         private static PresetHandler presetHandler = new PresetHandler();
         private static ConfigHandler config = new ConfigHandler();
 
+        private static int gameID = 0;
+
         static void Main(string[] args)
         {
             //ParseArkFile();
             SetPaths();
+
+            gameID = PromptInt("Persona #");
+            if (gameID != 4 && gameID != 5)
+                return;
+
             EditEncount();
         }
 
@@ -95,8 +102,7 @@ namespace P4G_Encount_Music_Editor
                         OutputEncounterList(allBattles);
                         break;
                     case 3:
-                        //GenCollection(allBattles);
-                        //OutputEncounterList(allBattles);
+                        CollectionCreation(allBattles);
                         break;
                     default:
                         break;
@@ -114,16 +120,32 @@ namespace P4G_Encount_Music_Editor
                     writer.Write(size);
                     foreach (Encounter battle in allBattles)
                     {
-                        writer.Write(battle.Flags);
-                        writer.Write(battle.Field04);
-                        writer.Write(battle.Field06);
-                        foreach (P4_EnemiesID enemy in battle.Units)
+                        if (gameID == 5)
                         {
-                            writer.Write((ushort)enemy);
+                            writer.Write(battle.Flags);
+                            writer.Write(GetReverseEndianessBytes(battle.Field04));
+                            writer.Write(GetReverseEndianessBytes(battle.Field06));
+                            foreach (ushort enemy in battle.Units)
+                            {
+                                writer.Write(GetReverseEndianessBytes(enemy));
+                            }
+                            writer.Write(GetReverseEndianessBytes(battle.FieldId));
+                            writer.Write(GetReverseEndianessBytes(battle.RoomId));
+                            writer.Write(GetReverseEndianessBytes(battle.MusicId));
                         }
-                        writer.Write(battle.FieldId);
-                        writer.Write(battle.RoomId);
-                        writer.Write(battle.MusicId);
+                        else
+                        {
+                            writer.Write(battle.Flags);
+                            writer.Write(battle.Field04);
+                            writer.Write(battle.Field06);
+                            foreach (P4_EnemiesID enemy in battle.Units)
+                            {
+                                writer.Write((ushort)enemy);
+                            }
+                            writer.Write(battle.FieldId);
+                            writer.Write(battle.RoomId);
+                            writer.Write(battle.MusicId);
+                        }
                     }
                     reader.BaseStream.Seek(size, SeekOrigin.Current);
                     writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
@@ -168,6 +190,13 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine(e);
                 Console.WriteLine("Problem saving modified ENCOUNT.TBL!");
             }
+        }
+
+        private static byte[] GetReverseEndianessBytes(ushort value)
+        {
+            byte[] theBytes = BitConverter.GetBytes(value);
+            Array.Reverse(theBytes);
+            return theBytes;
         }
 
         private static void OutputEncounterList(Encounter[] encounters)
@@ -220,6 +249,191 @@ namespace P4G_Encount_Music_Editor
             return theNumber;
         }
 
+        private static bool PromptYN(string name)
+        {
+            string theString = null;
+
+            while (theString == null || (!theString.Equals("y") && !theString.Equals("n")))
+            {
+                theString = PromptString(name);
+            }
+
+            if (theString.ToLower().Equals("y"))
+                return true;
+            else
+                return false;
+        }
+
+        private static string PromptString(string name)
+        {
+            string theString = null;
+
+            while (theString == null)
+            {
+                Console.Write($"Enter {name} (string): ");
+                string input = Console.ReadLine();
+
+                if (input != null && input.Length > 0)
+                {
+                    theString = input;
+                }
+            }
+
+            return theString;
+        }
+
+        private static void CollectionCreation(Encounter[] encounters)
+        {
+            Console.WriteLine("Collection Creation");
+            Console.WriteLine("Enter search term \"inaba\" to exit and save matches to file...");
+
+            Dictionary<ushort, string> encounterMatches = new Dictionary<ushort, string>();
+
+            while (true)
+            {
+                string searchString = PromptString("Search Term").ToLower();
+                if (searchString.Equals("inaba"))
+                    break;
+
+                string[] searchTerms = searchString.Split(' ');
+
+                for (int i = 0, total = encounters.Length; i < total; i++)
+                {
+                    Encounter currentEncounter = encounters[i];
+
+                    bool foundMatch = false;
+
+                    if (searchTerms.Length == 1)
+                    {
+                        //Console.WriteLine("Searching for one term...");
+                        if (ContainsUnitTerm(currentEncounter.Units, searchTerms[0]))
+                        {
+                            Console.WriteLine("Found match!");
+                            foundMatch = true;
+                        }
+                    }
+                    else
+                    {
+                        //Console.WriteLine("Searching for multiple terms...");
+                        foundMatch = true;
+                        // if multiple terms, check for each term in current encounter units
+                        foreach (var term in searchTerms)
+                        {
+                            // if encounter does not contain a term match not made
+                            if (!ContainsUnitTerm(currentEncounter.Units, term))
+                            {
+                                foundMatch = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    // add to encounters list if match was found
+                    if (foundMatch)
+                    {
+                        Console.WriteLine($"EncounterID: {i} - Added match to collection list!");
+                        string allEnemies = $"// {GetEnemyName(gameID, currentEncounter.Units[0])}, {GetEnemyName(gameID, currentEncounter.Units[1])}," +
+                            $"{GetEnemyName(gameID, currentEncounter.Units[2])}, {GetEnemyName(gameID, currentEncounter.Units[3])}, {GetEnemyName(gameID, currentEncounter.Units[4])}";
+                        encounterMatches.Add((ushort)i, allEnemies);
+                    }
+                }
+            }
+
+            string collectionName = PromptString("Collection Name (Lowercase)").ToLower();
+            string collectionFilePath = $@"{currentDir}\collections\{collectionName}.enc";
+            bool addToFile = false;
+
+            if (File.Exists(collectionFilePath))
+            {
+                Console.WriteLine("Add encounters to existing collection?");
+                addToFile = PromptYN("(y/n)");
+            }
+
+            // write or overwrite collection file
+            if (!File.Exists(collectionFilePath) || !addToFile)
+            {
+                StringBuilder collectionText = new StringBuilder();
+
+                foreach (var match in encounterMatches)
+                {
+                    collectionText.AppendLine(match.Key.ToString());
+                    collectionText.AppendLine(match.Value);
+                }
+
+                try
+                {
+                    File.WriteAllText(collectionFilePath, collectionText.ToString());
+                    Console.WriteLine($"Collectione created! File: {collectionFilePath}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine("Problem writing collection to file!");
+                }
+            }
+            else
+            {
+                // add to existing collection
+                try
+                {
+                    string[] originalCollectionLines = File.ReadAllLines(collectionFilePath);
+                    StringBuilder newCollectionLines = new StringBuilder();
+
+                    // list of existing ids
+                    List<ushort> existingIds = new List<ushort>();
+
+                    // parse collection for existing ids
+                    foreach (string line in originalCollectionLines)
+                    {
+                        newCollectionLines.AppendLine(line);
+                        if (line.StartsWith("/") || line.Length < 1)
+                            continue;
+                        existingIds.Add(ushort.Parse(line));
+                    }
+
+                    foreach (var match in encounterMatches)
+                    {
+                        if (!existingIds.Contains(match.Key))
+                        {
+                            newCollectionLines.AppendLine(match.Key.ToString());
+                            newCollectionLines.AppendLine($"{match.Value}");
+                            Console.WriteLine($"EncounterID: {match.Key} added!");
+                        }
+                    }
+
+                    File.WriteAllText(collectionFilePath, newCollectionLines.ToString());
+                    Console.WriteLine($"Collectione edited! File: {collectionFilePath}");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine("Problem adding to collection!");
+                }
+            }
+        }
+
+        private static bool ContainsUnitTerm(ushort[] units, string term)
+        {
+            foreach (ushort unit in units)
+            {
+                string unitName = GetEnemyName(gameID, unit).ToLower();
+                if (unitName.Contains(term))
+                    return true;
+            }
+
+            return false;
+        }
+
+        private static string GetEnemyName(int gameId, ushort enemyId)
+        {
+            if (gameId == 4)
+                return ((P4_EnemiesID)enemyId).ToString();
+            if (gameId == 5)
+                return ((P5_EnemiesID)enemyId).ToString();
+            else
+                return null;
+        }
+
         // should be full thing, find encounters that contain an enemy and gen a collection
         private static void GenCollection(Encounter[] encounters)
         {
@@ -266,24 +480,36 @@ namespace P4G_Encount_Music_Editor
         {
             List<Encounter> allEncounters = new List<Encounter>();
 
+            bool useBigEndian = false;
+            if (gameID == 5)
+            {
+                Console.WriteLine("Reading Encount.tbl in Big Endian!");
+                useBigEndian = true;
+            }
+
             Console.WriteLine("Parsing ENCOUNT.TBL");
 
             try
             {
                 using BinaryReader reader = new BinaryReader(File.Open(encountPath, FileMode.Open));
                 // 4 byte size integer
-                UInt32 size = reader.ReadUInt32();
+                UInt32 size = useBigEndian ? BinaryPrimitives.ReadUInt32BigEndian(reader.ReadBytes(4)) : reader.ReadUInt32();
+                Console.WriteLine($"Encount Size: {size}");
 
                 for (int bytesRead = 4; bytesRead < size; bytesRead += 24)
                 {
                     Encounter currentEncounter = new Encounter();
                     currentEncounter.Flags = reader.ReadBytes(4);
-                    currentEncounter.Field04 = reader.ReadUInt16();
-                    currentEncounter.Field06 = reader.ReadUInt16();
-                    currentEncounter.Units = new P4_EnemiesID[] { (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16(), (P4_EnemiesID)reader.ReadUInt16() };
-                    currentEncounter.FieldId = reader.ReadUInt16();
-                    currentEncounter.RoomId = reader.ReadUInt16();
-                    currentEncounter.MusicId = reader.ReadUInt16();
+                    currentEncounter.Field04 = useBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)) : reader.ReadUInt16();
+                    currentEncounter.Field06 = useBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)) : reader.ReadUInt16();
+                    if (useBigEndian)
+                        currentEncounter.Units = new ushort[] { BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)), BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)), BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)), BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)), BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)) };
+                    else
+                        currentEncounter.Units = new ushort[] { reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16(), reader.ReadUInt16() };
+                    currentEncounter.FieldId = useBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)) : reader.ReadUInt16();
+                    currentEncounter.RoomId = useBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)) : reader.ReadUInt16();
+                    currentEncounter.MusicId = useBigEndian ? BinaryPrimitives.ReadUInt16BigEndian(reader.ReadBytes(2)) : reader.ReadUInt16();
+
                     allEncounters.Add(currentEncounter);
                 }
 
