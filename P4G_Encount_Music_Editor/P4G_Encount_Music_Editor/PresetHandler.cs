@@ -88,7 +88,29 @@ namespace P4G_Encount_Music_Editor
                     ushort minIndex = ushort.Parse(arg1);
                     ushort maxIndex = ushort.Parse(arg2);
 
-                    musicId = config.GetRandomSetIndex(minIndex, maxIndex);
+                    musicId = config.GetRandomSetIndex(minIndex, maxIndex, false);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine("Problem parsing random args!");
+                }
+            }
+            else if(command.StartsWith("advantage"))
+            {
+                try
+                {
+                    // regex for parsing functions: https://stackoverflow.com/questions/18906514/regex-for-matching-functions-and-capturing-their-arguments/18908330
+                    var functionMatch = Regex.Match(command, @"\b[^()]+\((.*)\)$");
+                    string innerArgs = functionMatch.Groups[1].Value;
+                    var argMatches = Regex.Matches(innerArgs, @"([^,]+\(.+?\))|([^,]+)");
+                    string arg1 = argMatches[0].Value;
+                    string arg2 = argMatches[1].Value;
+
+                    ushort minIndex = ushort.Parse(arg1);
+                    ushort maxIndex = ushort.Parse(arg2);
+
+                    musicId = config.GetRandomSetIndex(minIndex, maxIndex, true);
                 }
                 catch (Exception e)
                 {

@@ -16,12 +16,12 @@ namespace P4G_Encount_Music_Editor
             currentDir = Directory.GetCurrentDirectory();
         }
 
-        public ushort GetRandomSetIndex(ushort minIndex, ushort maxIndex)
+        public ushort GetRandomSetIndex(ushort minIndex, ushort maxIndex, bool isAdvantage)
         {
             ushort randomSetIndex = 0;
 
             // random index range for comparison
-            ushort[] randomRange = new ushort[] { minIndex, maxIndex };
+            ushort[] randomRange = new ushort[] { minIndex, (ushort)(isAdvantage ? (maxIndex * 2 + 1) : (maxIndex * 2)) };
 
             // see if range already exists in dictionary
             KeyValuePair<ushort, ushort[]> dictionaryMatch = randSets.FirstOrDefault(sets => sets.Value.SequenceEqual(randomRange));
@@ -31,7 +31,7 @@ namespace P4G_Encount_Music_Editor
             {
                 Console.WriteLine("New Random Set detected!");
                 // limit of 15 possible random sets
-                if (randSets.Count < 15)
+                if (randSets.Count < 32)
                 {
                     int totalSets = randSets.Count;
                     randomSetIndex = (ushort)(8192 + totalSets);
@@ -78,7 +78,7 @@ namespace P4G_Encount_Music_Editor
                 }
 
                 byte[] patchBytes = File.ReadAllBytes(patchFilePath);
-                int startOffset = 134;
+                int startOffset = 20;
 
                 //string[] randomSetsLines = File.ReadAllLines(randomSetsFilePath);
 
