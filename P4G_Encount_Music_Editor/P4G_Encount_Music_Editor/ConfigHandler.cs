@@ -31,14 +31,14 @@ namespace P4G_Encount_Music_Editor
             // add entry for index range to dictionary
             if (dictionaryMatch.Value == null)
             {
-                Console.WriteLine("New Random Set detected!");
+                Console.WriteLine("New Set detected!");
                 // limit of 47 set values
                 if (randSets.Count < 48)
                 {
                     int totalSets = randSets.Count;
                     randomSetIndex = (ushort)(8192 + totalSets);
                     randSets.Add(randomSetIndex, randomRange);
-                    Console.WriteLine($"Random Set added!\nRandSet ID: {totalSets}, Range: [{minIndex}, {maxIndex}), Wave Index: {randomSetIndex}");
+                    Console.WriteLine($"Set added!\nSetID: {totalSets} | MinValue: {minIndex} | MaxValue: {maxIndex}) | WaveIndex: {randomSetIndex}");
                 }
                 else
                 {

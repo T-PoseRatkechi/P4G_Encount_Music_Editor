@@ -12,7 +12,7 @@ namespace P4G_Encount_Music_Editor
         private string currentDir = null;
         private string presetsFolderDir = null;
         private ConfigHandler config = new ConfigHandler();
-        private static Dictionary<string, ushort> setNames = new Dictionary<string, ushort>();
+        private static Dictionary<string, ushort> setIndexNames = new Dictionary<string, ushort>();
 
         public PresetHandler()
         {
@@ -89,6 +89,7 @@ namespace P4G_Encount_Music_Editor
                     var functionMatch = Regex.Match(command, @"\b[^()]+\((.*)\)$");
                     string innerArgs = functionMatch.Groups[1].Value;
                     var argMatches = Regex.Matches(innerArgs, @"([^,]+\(.+?\))|([^,]+)");
+
                     string arg1 = argMatches[0].Value;
                     string arg2 = argMatches[1].Value;
 
@@ -103,7 +104,7 @@ namespace P4G_Encount_Music_Editor
                     Console.WriteLine("Problem parsing random args!");
                 }
             }
-            else if(command.StartsWith("advantage"))
+            else if (command.StartsWith("advantage"))
             {
                 try
                 {
@@ -114,8 +115,8 @@ namespace P4G_Encount_Music_Editor
                     string arg1 = argMatches[0].Value;
                     string arg2 = argMatches[1].Value;
 
-                    ushort minIndex = setNames[arg1];
-                    ushort maxIndex = setNames[arg2];
+                    ushort minIndex = setIndexNames[arg1];
+                    ushort maxIndex = setIndexNames[arg2];
 
                     musicId = config.GetRandomSetIndex(minIndex, maxIndex, true);
                 }
@@ -124,6 +125,10 @@ namespace P4G_Encount_Music_Editor
                     Console.WriteLine(e);
                     Console.WriteLine("Problem parsing random args!");
                 }
+            }
+            else if (command.StartsWith('_'))
+            {
+                musicId = (ushort)(setIndexNames[command] + 8192);
             }
             else
             {
@@ -143,13 +148,13 @@ namespace P4G_Encount_Music_Editor
 
         private void RunAliasCommand(string name, ushort waveIndex)
         {
-            if (!setNames.ContainsKey(name))
+            if (!setIndexNames.ContainsKey(name))
             {
                 int setIndex = waveIndex - 8192;
-                setNames.Add(name, (ushort) setIndex);
+                setIndexNames.Add(name, (ushort) setIndex);
                 ushort[] aliasSet = config.GetSetByKey(waveIndex);
                 if (aliasSet != null)
-                    Console.WriteLine($"{name} set to Set Index {setIndex}: ({aliasSet[0]}, {aliasSet[1]})");
+                    Console.WriteLine($"{name} set to SetID: {setIndex} ({aliasSet[0]}, {aliasSet[1]})");
             }
         }
 
