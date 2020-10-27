@@ -24,6 +24,7 @@ namespace P4G_Encount_Music_Editor
             ushort[] randomRange = new ushort[] { minIndex, (ushort)(isAdvantage ? (maxIndex * 2 + 1) : (maxIndex * 2)) };
 
             // see if range already exists in dictionary
+            // TODO: Possibly test if this causes problems with similar indexes. Shouldn't since +1 is given to advantage indexes
             KeyValuePair<ushort, ushort[]> dictionaryMatch = randSets.FirstOrDefault(sets => sets.Value.SequenceEqual(randomRange));
 
             // add entry for index range to dictionary
@@ -53,6 +54,19 @@ namespace P4G_Encount_Music_Editor
             }
 
             return randomSetIndex;
+        }
+
+        public ushort[] GetSetByKey(ushort key)
+        {
+            if (randSets.ContainsKey(key))
+            {
+                return randSets[key];
+            }
+            else
+            {
+                Console.WriteLine($"Key: {key} not found in list of sets!");
+                return null;
+            }
         }
 
         public void BuildPatch()

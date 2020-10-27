@@ -12,6 +12,7 @@ namespace P4G_Encount_Music_Editor
         private string currentDir = null;
         private string presetsFolderDir = null;
         private ConfigHandler config = new ConfigHandler();
+        private static Dictionary<string, ushort> setNames = new Dictionary<string, ushort>();
 
         public PresetHandler()
         {
@@ -44,11 +45,17 @@ namespace P4G_Encount_Music_Editor
                     // parse command to get new music id
                     ushort newMusicId = ParseCommand(command);
 
-                    // line is a command
+                    // line is a collection command
                     if (lineArgs[0].StartsWith('.'))
                     {
                         string collection = item.Substring(1);
                         RunCollectionCommand(encounters, collection, newMusicId);
+                    }
+                    // line is an alias command
+                    else if (lineArgs[0].StartsWith('_'))
+                    {
+                        string setName = lineArgs[0];
+                        RunAliasCommand(setName, newMusicId);
                     }
                     else
                     {
@@ -107,8 +114,8 @@ namespace P4G_Encount_Music_Editor
                     string arg1 = argMatches[0].Value;
                     string arg2 = argMatches[1].Value;
 
-                    ushort minIndex = ushort.Parse(arg1);
-                    ushort maxIndex = ushort.Parse(arg2);
+                    ushort minIndex = setNames[arg1];
+                    ushort maxIndex = setNames[arg2];
 
                     musicId = config.GetRandomSetIndex(minIndex, maxIndex, true);
                 }
@@ -132,6 +139,18 @@ namespace P4G_Encount_Music_Editor
             }
 
             return musicId;
+        }
+
+        private void RunAliasCommand(string name, ushort waveIndex)
+        {
+            if (!setNames.ContainsKey(name))
+            {
+                int setIndex = waveIndex - 8192;
+                setNames.Add(name, (ushort) setIndex);
+                ushort[] aliasSet = config.GetSetByKey(waveIndex);
+                if (aliasSet != null)
+                    Console.WriteLine($"{name} set to Set Index {setIndex}: ({aliasSet[0]}, {aliasSet[1]})");
+            }
         }
 
         private void RunCollectionCommand(Encounter[] encounters, string collectionName, ushort waveIndex)
