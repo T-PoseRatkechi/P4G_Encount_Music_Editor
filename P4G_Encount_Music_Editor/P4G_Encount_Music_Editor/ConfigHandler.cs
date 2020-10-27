@@ -19,14 +19,15 @@ namespace P4G_Encount_Music_Editor
         public ushort GetRandomSetIndex(ushort minIndex, ushort maxIndex, bool isAdvantage)
         {
             ushort randomSetIndex = 0;
+            // bit shift left to make room for advantage bit flag
             ushort maxValue = (ushort)(maxIndex << 1);
 
-            // random index range for comparison
-            ushort[] randomRange = new ushort[] { minIndex, (ushort)(isAdvantage ? (maxValue + 1) : (maxValue)) };
+            // array to contain set's min and max value, adding 1 if advantage flag true
+            ushort[] setValues = new ushort[] { minIndex, (ushort)(isAdvantage ? (maxValue + 1) : (maxValue)) };
 
             // see if range already exists in dictionary
             // TODO: Possibly test if this causes problems with similar indexes. Shouldn't since +1 is given to advantage indexes
-            KeyValuePair<ushort, ushort[]> dictionaryMatch = randSets.FirstOrDefault(sets => sets.Value.SequenceEqual(randomRange));
+            KeyValuePair<ushort, ushort[]> dictionaryMatch = randSets.FirstOrDefault(sets => sets.Value.SequenceEqual(setValues));
 
             // add entry for index range to dictionary
             if (dictionaryMatch.Value == null)
@@ -37,7 +38,7 @@ namespace P4G_Encount_Music_Editor
                 {
                     int totalSets = randSets.Count;
                     randomSetIndex = (ushort)(8192 + totalSets);
-                    randSets.Add(randomSetIndex, randomRange);
+                    randSets.Add(randomSetIndex, setValues);
                     Console.WriteLine($"Set added!\nSetID: {totalSets} | MinValue: {minIndex} | MaxValue: {maxIndex}) | WaveIndex: {randomSetIndex}");
                 }
                 else
