@@ -19,9 +19,10 @@ namespace P4G_Encount_Music_Editor
         public ushort GetRandomSetIndex(ushort minIndex, ushort maxIndex, bool isAdvantage)
         {
             ushort randomSetIndex = 0;
+            ushort maxValue = (ushort)(maxIndex << 1);
 
             // random index range for comparison
-            ushort[] randomRange = new ushort[] { minIndex, (ushort)(isAdvantage ? (maxIndex * 2 + 1) : (maxIndex * 2)) };
+            ushort[] randomRange = new ushort[] { minIndex, (ushort)(isAdvantage ? (maxValue + 1) : (maxValue)) };
 
             // see if range already exists in dictionary
             // TODO: Possibly test if this causes problems with similar indexes. Shouldn't since +1 is given to advantage indexes
@@ -31,8 +32,8 @@ namespace P4G_Encount_Music_Editor
             if (dictionaryMatch.Value == null)
             {
                 Console.WriteLine("New Random Set detected!");
-                // limit of 15 possible random sets
-                if (randSets.Count < 32)
+                // limit of 47 set values
+                if (randSets.Count < 48)
                 {
                     int totalSets = randSets.Count;
                     randomSetIndex = (ushort)(8192 + totalSets);
@@ -42,7 +43,7 @@ namespace P4G_Encount_Music_Editor
                 else
                 {
                     Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine("Max 15 randomized sets limit reached! Defaulting to first set!");
+                    Console.WriteLine("Max 47 sets limit reached! Defaulting to first set!");
                     Console.ResetColor();
                     randomSetIndex = 8192;
                 }
