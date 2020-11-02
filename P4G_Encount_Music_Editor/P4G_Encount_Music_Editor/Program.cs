@@ -196,9 +196,12 @@ namespace P4G_Encount_Music_Editor
                             foreach (string file in Directory.GetFiles($@"{packageFolderDir}"))
                                 File.Delete(file);
 
+                            if (!Directory.Exists($@"{packageFolderDir}\tblpatches"))
+                                Directory.CreateDirectory($@"{packageFolderDir}\tblpatches");
+
                             // copy tbl patches to package folder
                             foreach (string file in Directory.GetFiles($@"{currentDir}\patches"))
-                                File.Copy(file, $@"{packageFolderDir}\{Path.GetFileName(file)}");
+                                File.Copy(file, $@"{packageFolderDir}\tblpatches\{Path.GetFileName(file)}");
                         }
                         catch (Exception e)
                         {
