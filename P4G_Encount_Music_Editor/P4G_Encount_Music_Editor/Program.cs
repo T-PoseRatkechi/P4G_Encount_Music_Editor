@@ -77,7 +77,7 @@ namespace P4G_Encount_Music_Editor
             originalFolderDir = $@"{currentDir}\original";
             moddedFolderDir = $@"{currentDir}\modded";
             presetsFolderDir = $@"{currentDir}\presets";
-            packageFolderDir = $@"{currentDir}\BGME Aemulus Package";
+            packageFolderDir = $@"{currentDir}\BGME Config Package";
 
             // create folders if needed
             try
@@ -192,12 +192,12 @@ namespace P4G_Encount_Music_Editor
                     {
                         try
                         {
-                            // delete all current files in package folder
-                            foreach (string file in Directory.GetFiles($@"{packageFolderDir}"))
-                                File.Delete(file);
-
                             if (!Directory.Exists($@"{packageFolderDir}\tblpatches"))
                                 Directory.CreateDirectory($@"{packageFolderDir}\tblpatches");
+
+                            // delete all existing tblpatches in package folder
+                            foreach (string file in Directory.GetFiles($@"{packageFolderDir}\tblpatches"))
+                                File.Delete(file);
 
                             // copy tbl patches to package folder
                             foreach (string file in Directory.GetFiles($@"{currentDir}\patches"))

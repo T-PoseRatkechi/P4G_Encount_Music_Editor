@@ -84,7 +84,7 @@ namespace P4G_Encount_Music_Editor
             }
 
             // new patch file path
-            string newPatchFile = $@"{currentDir}\BGME Aemulus Package\patches\BGME_Config.patch";
+            string newPatchFile = $@"{currentDir}\BGME Config Package\patches\BGME_Config.patch";
 
             try
             {

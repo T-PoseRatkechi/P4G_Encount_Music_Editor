@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<Metadata xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <name>BGME Config</name>
+  <id>t-poseratkechi.bgmeconfig</id>
+  <author>T-Pose Ratkechi</author>
+  <version>1.0.0</version>
+  <link>https://gamebanana.com/tools/6887</link>
+  <description>BGM Enhanced: Aemulus allows for extending and customizing P4G's use of battle BGM. This is the Config Package.</description>
+</Metadata>
