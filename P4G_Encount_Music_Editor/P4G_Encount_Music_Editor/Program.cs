@@ -201,7 +201,7 @@ namespace P4G_Encount_Music_Editor
 
                             // copy tbl patches to package folder
                             foreach (string file in Directory.GetFiles($@"{currentDir}\patches"))
-                                File.Copy(file, $@"{packageFolderDir}\tblpatches\{Path.GetFileName(file)}");
+                                File.Copy(file, $@"{packageFolderDir}\tblpatches\{Path.GetFileName(file)}", true);
                         }
                         catch (Exception e)
                         {
