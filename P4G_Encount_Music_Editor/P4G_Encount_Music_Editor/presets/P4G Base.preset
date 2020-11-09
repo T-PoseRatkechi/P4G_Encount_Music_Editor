@@ -1,0 +1,101 @@
+// P4G Base Preset
+// This preset mimics P4G's default song usage and is meant to be used
+// as only a starting point for other presets.
+
+// Usage:
+// .{collection name}={Song Index or random(x,y)}
+// EncounterIndex={Song Index or random(x,y)}
+
+// normal/advantage sets
+_normal=random(2,3)
+_advantage=random(55,56)
+
+// set all encounters to play reach out to the truth/time to make history
+.all=advantage(_normal,_advantage)
+
+// boss battles
+
+// set reapers to play i'll face myself -battle-
+.reapers=3
+
+// dream battle
+532=11
+
+// tutorial battle
+524=47
+
+// bosses
+// shadow yosuke
+512=3
+// shadow chie
+513=3
+// shadow yukiko
+514=3
+// shadow kanji
+515=3
+// shadow rise
+516=3
+// shadow teddie
+517=3
+// shadow mitsuo
+518=59
+// shadow naoto
+519=3
+// namatame
+520=4
+// adachi
+521=4
+// Amenosagiri
+522=5
+// izanami
+523=6
+// izanami no okami
+533=0
+// marie
+535=56
+// marie KusuminoOkami
+534=57
+// Margaret
+525=3
+
+// mini bosses
+//set mini bosses to play reach out (first battle)
+// castle
+811=47
+// sauna
+812=47
+// maru
+813=47
+// void
+814=47
+// secret
+815=47
+// heaven
+816=47
+// magatsu Chaos Fuzz
+817=47
+// magatsu Envious Giant
+818=47
+// hollow Gorgeous King
+938=47
+// hollow Heaven's Giant
+939=47
+// yomotsu Neo Minotaur
+819=47
+// yomotsu Sleeping Table
+820=47
+
+// optional bosses
+// set optional bosses to play i'll face myself (battle)
+// castle
+526=3
+// sauna
+527=3
+// maru
+528=3
+// void
+529=3
+// secret
+530=3
+// heaven
+531=3

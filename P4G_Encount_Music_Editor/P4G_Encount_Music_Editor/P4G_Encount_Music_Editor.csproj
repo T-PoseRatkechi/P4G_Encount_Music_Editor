@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -10,5 +10,9 @@
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\collections&quot; &quot;$(TargetDir)collections&quot; /S /Y&#xD;&#xA;xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\presets&quot; &quot;$(TargetDir)presets&quot; /S /Y" />
+  </Target>
 
 </Project>

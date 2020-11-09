@@ -1,0 +1,94 @@
+// regular encounters sets
+_normal=random(886,891)
+_advantage=random(891,896)
+.all=advantage(_normal,_advantage)
+
+// void encounters sets
+_normalVoid=random(896,897)
+_advantageVoid=random(897,898)
+.void=advantage(_normalVoid,_advantageVoid)
+
+// special battles
+
+// set reapers to play i'll face myself -battle-
+.reapers=3
+
+// dream battle
+532=11
+
+// tutorial battle
+524=47
+
+// bosses
+// shadow yosuke
+512=898
+// shadow chie
+513=899
+// shadow yukiko
+514=900
+// shadow kanji
+515=901
+// shadow rise
+516=902
+// shadow teddie
+517=903
+// shadow mitsuo
+518=59
+// shadow naoto
+519=904
+// namatame
+520=4
+// adachi
+521=905
+// Amenosagiri
+522=5
+// izanami
+523=6
+// izanami no okami
+533=0
+// marie
+535=56
+// marie KusuminoOkami
+534=57
+// Margaret
+525=906
+
+//mini-bosses
+// castle
+811=907
+// sauna
+812=908
+// maru
+813=909
+// void
+814=910
+// secret
+815=911
+// heaven
+816=912
+// magatsu Chaos Fuzz
+817=913
+// magatsu Envious Giant
+818=913
+// hollow Gorgeous King
+938=914
+// hollow Heaven's Giant
+939=914
+// yomotsu Neo Minotaur
+819=915
+// yomotsu Sleeping Table
+820=915
+
+// optional bosses
+// castle
+526=916
+// sauna
+527=917
+// maru
+528=918
+// void
+529=919
+// secret
+530=920
+// heaven
+531=921

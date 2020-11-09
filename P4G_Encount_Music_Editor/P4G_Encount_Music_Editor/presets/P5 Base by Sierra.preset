@@ -1,0 +1,253 @@
+// This preset mimics P5's default song usage and is meant to be used
+// as only a starting point for other presets.
+
+// Enemy: SacrificialPyrekeeper1
+641=332
+// Enemy: CryptdwellingPyromaniac1
+642=335
+// Enemy: BedsideBrute1
+643=330
+// Enemy: DirtyTwohornedBeast1
+647=330
+// Enemy: GuardCaptain
+648=335
+// Enemy: GuardCaptain1
+651=335
+// Enemy: WarhungryHorseman
+652=330
+// Enemy: TornKingofDesire
+653=330
+// Enemy: WarhungryHorseman
+656=330
+// Enemy: SecurityShadow
+657=330
+// Enemy: EmbitteredBlacksmith1
+658=335
+// Enemy: EquineSage
+660=330
+// Enemy: DefeatedAvenger1
+661=330
+// Enemy: ChivalrousGuard
+662=330
+// Enemy: FloodbringerDemon
+663=335
+// Enemy: TornadoDevil1
+664=330
+// Enemy: FloodbringerDemon
+665=330
+// Enemy: EquineSage
+666=330
+// Enemy: HeavenlyPunisher1
+667=330
+// Enemy: SacrificialPyrekeeper2
+668=471
+// Enemy: HarusFiance
+669=335
+// Enemy: ShadowNejima
+670=330
+// Enemy: ShadowNejima
+671=330
+// Enemy: ApocalypticGuide
+674=331
+// Enemy: RagingBirdGod1
+675=330
+// Enemy: CoffinborneGod1
+676=330
+// Enemy: CoffinborneGod1
+677=330
+// Enemy: TornKingofDesire1
+679=330
+// Enemy: WanderingReviver2
+680=330
+// Enemy: AuspiciousPachyderm1
+681=330
+// Enemy: DancingWitch1
+682=330
+// Enemy: ThunderEmperor1
+683=330
+// Enemy: CruelLeopard1
+685=335
+// Enemy: BringerofMisfortune1
+687=330
+// Enemy: ChivalrousGuard
+689=330
+// Enemy: DemonicWarlord
+691=330
+// Enemy: HeraldofDeath
+693=330
+// Enemy: CleanserofHeaven
+694=330
+// Enemy: DeclarerofAnguish
+695=330
+// Enemy: FinalMeasurer
+696=330
+// Enemy: PoliticianOoe
+697=330
+// Enemy: FormerNoble
+698=330
+// Enemy: ShadowTVPresident
+699=330
+// Enemy: ShadowITPresident
+700=330
+// Enemy: ShadowCleaner
+701=330
+// Enemy: WarhungryHorseman
+705=330
+// Enemy: WarhungryHorseman
+706=330
+// Enemy: ShadowTakanashi
+707=330
+// Enemy: AbyssalKingofAvarice
+708=330
+// Enemy: ShadowOyamada
+710=330
+// Enemy: ShadowMogami
+711=330
+// Enemy: ShadowNakanohara
+712=330
+// Enemy: ShadowofGod
+713=330
+// Enemy: ShadowofGod
+714=330
+// Enemy: ShadowMakigami
+715=330
+// Enemy: ShadowSakoda
+716=330
+// Enemy: ShadowofGod
+717=330
+// Enemy: ShadowTsuda
+718=330
+// Enemy: ShadowofGod
+719=330
+// Enemy: ShadowMrsTakase
+720=330
+// Enemy: ShadowHonjo
+721=330
+// Enemy: ShadowOda
+722=330
+// Enemy: ShadowJochi
+723=330
+// Enemy: ShadowTogo
+724=330
+// Enemy: ShadowShimizu
+725=330
+// Enemy: ShadowofGod
+726=330
+// Enemy: ShadowofGod
+727=330
+// Enemy: ShadowofGod
+728=330
+// Enemy: ShadowofGod
+729=330
+// Enemy: ShadowofGod
+730=330
+// Enemy: NotUsed
+731=330
+// Enemy: ShadowofGod
+732=330
+// Enemy: ShadowKiritani
+733=330
+// Enemy: ShadowofGod
+734=330
+// Enemy: ShadowofGod
+735=330
+// Enemy: ShadowofGod
+736=330
+// Enemy: ShadowAsakura
+737=330
+// Enemy: ShadowOdo1
+738=330
+// Enemy: ShadowofGod
+739=330
+// Enemy: ShadowKishi
+740=330
+// Enemy: ShadowUchimura
+741=330
+// Enemy: ShadowFukurai
+742=330
+// Enemy: ShadowofGod
+743=330
+// Enemy: ShadowNaguri
+744=330
+// Enemy: ShadowofGod
+746=330
+// Enemy: ShadowMrMagario
+747=330
+// Enemy: ShadowIsshiki
+748=330
+// Enemy: ShadowTsuboi
+752=330
+// Enemy: ShadowAkitsu
+753=330
+// Enemy: ShadowWakasa
+754=330
+// Enemy: DarkSun
+756=330
+// Enemy: HeavenlyPunisher
+757=330
+// Enemy: WomanWhoBringsRuin
+758=330
+// Enemy: VampireMoth
+759=330
+// Enemy: TheShadowedOne
+760=330
+// Enemy: HedonisticBraggart
+761=330
+// Enemy: SacrificialPyrekeeper
+762=330
+// Enemy: BeguilingGirl1
+764=330
+// Enemy: CorporoboMDLCH
+766=330
+// Enemy: TrophyofObsession
+769=331
+// Enemy: IchiryusaiAzazelMadarame
+770=331
+// Enemy: JunyaBaelKaneshiro
+772=330
+// Enemy: BeastThatRulesthePalace
+773=331
+// Enemy: CognitiveWakabaIsshiki
+774=335
+// Enemy: CorporoboMDLWKR1
+776=331
+// Enemy: ShadowSae
+778=331
+// Enemy: GoroAkechi
+779=331
+// Enemy: GoroAkechi1
+780=332
+// Enemy: GoroAkechi2
+781=335
+// Enemy: BeastofHumanSacrifice
+782=332
+// Enemy: MasayoshiSamaelShido
+783=336
+// Enemy: GodofControlYaldabaoth
+785=334
+// Enemy: HolyGrail1
+786=336
+// Enemy: HolyGrail2
+787=336
+// Enemy: GodofControlYaldabaoth
+788=333
+// Enemy: TreasureofMementos
+789=336
+// Enemy: Caroline1
+790=336
+// Enemy: Justine
+791=335
+// Enemy: HereticGoat1
+795=330
+// Enemy: UnfaithfulDreamKing
+796=330
+// Enemy: GuardDogofHades2
+797=330
+// Enemy: HereticGoat1
+798=330
+// Enemy: SnakeKing1
+804=330
+// Enemy: AuspiciousPachyderm
+813=330
+// Enemy: HereticGoat1
+815=330
