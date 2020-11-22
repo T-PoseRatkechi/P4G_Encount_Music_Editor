@@ -32,14 +32,16 @@ namespace P4G_Encount_Music_Editor
             // add entry for index range to dictionary
             if (dictionaryMatch.Value == null)
             {
-                Console.WriteLine("New Set detected!");
                 // limit of 47 set values
                 if (randSets.Count < 48)
                 {
                     int totalSets = randSets.Count;
                     randomSetIndex = (ushort)(8192 + totalSets);
                     randSets.Add(randomSetIndex, setValues);
-                    Console.WriteLine($"Set added!\nSetID: {totalSets} | MinValue: {minIndex} | MaxValue: {maxIndex}) | WaveIndex: {randomSetIndex}");
+                    Console.ForegroundColor = ConsoleColor.Cyan;
+                    Console.WriteLine("Set Created:");
+                    Console.ResetColor();
+                    Console.WriteLine($"SetID: {totalSets} | MinValue: {minIndex} | MaxValue: {maxIndex}) | WaveIndex: {randomSetIndex}");
                 }
                 else
                 {
@@ -123,7 +125,7 @@ namespace P4G_Encount_Music_Editor
                 File.WriteAllBytes(newPatchFile, patchBytes);
 
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"New BGME_Config Patch Created! File: {newPatchFile}");
+                Console.WriteLine($"New BGME_Config Patch Created!\nFile: {newPatchFile}");
                 Console.ResetColor();
             }
             catch (Exception e)

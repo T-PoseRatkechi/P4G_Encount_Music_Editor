@@ -242,7 +242,7 @@ namespace P4G_Encount_Music_Editor
             Console.WriteLine("Available Presets");
             for (int i = 0, total = allPresets.Length; i < total; i++)
             {
-                Console.WriteLine($"{i}. {Path.GetFileNameWithoutExtension(allPresets[i])}");
+                Console.WriteLine($"{i + 1}. {Path.GetFileNameWithoutExtension(allPresets[i])}");
             }
 
             // get valid preset choice
@@ -250,14 +250,14 @@ namespace P4G_Encount_Music_Editor
             do
             {
                 int tempChoice = PromptInt("Preset Selection");
-                if (tempChoice >= allPresets.Length)
+                if (tempChoice > allPresets.Length)
                     Console.WriteLine("Invalid selection!");
                 else
                     presetSelection = tempChoice;
 
-            } while (presetSelection < 0);
+            } while (presetSelection < 1);
 
-            return allPresets[presetSelection];
+            return allPresets[presetSelection - 1];
         }
 
         private static int PromptInt(string name)

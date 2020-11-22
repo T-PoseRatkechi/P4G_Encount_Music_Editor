@@ -11,6 +11,9 @@ namespace P4G_Encount_Music_Editor
 {
     class Program
     {
+        private const int Game_P4G = 1;
+        private const int Game_P5 = 2;
+
         public struct Encounter
         {
             public byte[] Flags { get; set; }
@@ -36,40 +39,37 @@ namespace P4G_Encount_Music_Editor
 
         static void Main(string[] args)
         {
-            //ParseArkFile();
             SetPaths();
 
-            gameID = PromptInt("Persona #");
-            if (gameID != 4 && gameID != 5)
+            //Console.WriteLine("Which Persona game are you editing?");
+            //gameID = PromptInt("Persona (4/5)");
+            //if (gameID != 4 && gameID != 5)
+            //    return;
+
+            if (!PromptGame())
                 return;
 
             EditEncount();
+
+            Console.WriteLine("Enter any key to exit...");
+            Console.ReadKey();
         }
 
-        private static void GenSierraPreset()
+        private static bool PromptGame()
         {
-            string originalEncount = $@"{currentDir}\original\ENCOUNT.TBL";
-            string sierraEncount = $@"{currentDir}\modded\ENCOUNT.TBL";
-
-            Encounter[] originalEncounters = GetEncountersList(originalEncount);
-            Encounter[] sierraEncounters = GetEncountersList(sierraEncount);
-
-            StringBuilder presetText = new StringBuilder();
-
-            for (int i = 0, total = originalEncounters.Length; i < total; i++)
+            Console.WriteLine("Which Persona game are you editing?");
+            Console.WriteLine("1. Persona 4 Golden");
+            Console.WriteLine("2. Persona 5");
+            gameID = PromptInt("Game Selection");
+            if (gameID < 1 || gameID > 2)
             {
-                Encounter original = originalEncounters[i];
-                Encounter sierra = sierraEncounters[i];
-
-                if (original.MusicId != sierra.MusicId)
-                {
-                    Console.WriteLine("Found mismatch!");
-                    presetText.AppendLine($"// Enemy: {(P5_EnemiesID)original.Units[0]}");
-                    presetText.AppendLine($"{i}={sierra.MusicId}");
-                }
+                Console.WriteLine("Invalid selection!");
+                Console.WriteLine("Enter any key to exit...");
+                Console.ReadKey();
+                return false;
             }
 
-            File.WriteAllText($@"{currentDir}\test.preset", presetText.ToString());
+            return true;
         }
 
         private static void SetPaths()
@@ -99,15 +99,20 @@ namespace P4G_Encount_Music_Editor
         private static void EditEncount()
         {
             string inEncountPath = $@"{originalFolderDir}\ENCOUNT.TBL";
-            if (!File.Exists(inEncountPath))
+            bool encountExists = File.Exists(inEncountPath);
+            if (!encountExists)
             {
                 Console.WriteLine($"Missing original ENCOUNT.TBL! File: {inEncountPath}");
-                return;
+                if (gameID == Game_P5)
+                {
+                    return;
+                }
+                Console.WriteLine($"Some features will be disabled!");
             }
 
             string outEncountPath = $@"{moddedFolderDir}\ENCOUNT.TBL";
 
-            Encounter[] allBattles = GetEncountersList(inEncountPath);
+            Encounter[] allBattles = encountExists ? GetEncountersList(inEncountPath) : new Encounter[944];
 
             int menuSelection = 0;
 
@@ -116,8 +121,11 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine("\nP4G_Encount_Music_Editor");
                 Console.WriteLine("Menu:");
                 Console.WriteLine("1. Run Preset");
-                Console.WriteLine("2. Output Encounter List");
-                Console.WriteLine("3. Collection Creation");
+                if (encountExists)
+                {
+                    Console.WriteLine("2. Output Encounter List");
+                    Console.WriteLine("3. Collection Creation");
+                }
                 Console.WriteLine("0. Save and Exit");
 
                 menuSelection = PromptInt("Menu Selection");
@@ -127,10 +135,12 @@ namespace P4G_Encount_Music_Editor
                         presetHandler.RunPreset(allBattles);
                         break;
                     case 2:
-                        OutputEncounterList(allBattles);
+                        if (encountExists)
+                            OutputEncounterList(allBattles);
                         break;
                     case 3:
-                        CollectionCreation(allBattles);
+                        if (encountExists)
+                            CollectionCreation(allBattles);
                         break;
                     default:
                         break;
@@ -140,78 +150,49 @@ namespace P4G_Encount_Music_Editor
 
             try
             {
-                // write edited encounter tbl
-                using (BinaryWriter writer = new BinaryWriter(File.Open(outEncountPath, FileMode.Create)))
+                if (encountExists)
                 {
-                    using BinaryReader reader = new BinaryReader(File.Open(inEncountPath, FileMode.Open));
-                    UInt32 size = reader.ReadUInt32();
-                    writer.Write(size);
-                    foreach (Encounter battle in allBattles)
+                    // write edited encounter tbl
+                    using (BinaryWriter writer = new BinaryWriter(File.Open(outEncountPath, FileMode.Create)))
                     {
-                        if (gameID == 5)
+                        using BinaryReader reader = new BinaryReader(File.Open(inEncountPath, FileMode.Open));
+                        UInt32 size = reader.ReadUInt32();
+                        writer.Write(size);
+                        foreach (Encounter battle in allBattles)
                         {
-                            writer.Write(battle.Flags);
-                            writer.Write(GetReverseEndianessBytes(battle.Field04));
-                            writer.Write(GetReverseEndianessBytes(battle.Field06));
-                            foreach (ushort enemy in battle.Units)
+                            if (gameID == Game_P5)
                             {
-                                writer.Write(GetReverseEndianessBytes(enemy));
+                                writer.Write(battle.Flags);
+                                writer.Write(GetReverseEndianessBytes(battle.Field04));
+                                writer.Write(GetReverseEndianessBytes(battle.Field06));
+                                foreach (ushort enemy in battle.Units)
+                                {
+                                    writer.Write(GetReverseEndianessBytes(enemy));
+                                }
+                                writer.Write(GetReverseEndianessBytes(battle.FieldId));
+                                writer.Write(GetReverseEndianessBytes(battle.RoomId));
+                                writer.Write(GetReverseEndianessBytes(battle.MusicId));
                             }
-                            writer.Write(GetReverseEndianessBytes(battle.FieldId));
-                            writer.Write(GetReverseEndianessBytes(battle.RoomId));
-                            writer.Write(GetReverseEndianessBytes(battle.MusicId));
-                        }
-                        else
-                        {
-                            writer.Write(battle.Flags);
-                            writer.Write(battle.Field04);
-                            writer.Write(battle.Field06);
-                            foreach (P4_EnemiesID enemy in battle.Units)
+                            else
                             {
-                                writer.Write((ushort)enemy);
+                                writer.Write(battle.Flags);
+                                writer.Write(battle.Field04);
+                                writer.Write(battle.Field06);
+                                foreach (P4_EnemiesID enemy in battle.Units)
+                                {
+                                    writer.Write((ushort)enemy);
+                                }
+                                writer.Write(battle.FieldId);
+                                writer.Write(battle.RoomId);
+                                writer.Write(battle.MusicId);
                             }
-                            writer.Write(battle.FieldId);
-                            writer.Write(battle.RoomId);
-                            writer.Write(battle.MusicId);
                         }
-                    }
-                    reader.BaseStream.Seek(size, SeekOrigin.Current);
-                    writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
-                }
-
-                // make tblpatches
-                string aemPatcherPath = $@"{currentDir}\Aem_TBL_Patcher.exe";
-                if (File.Exists(aemPatcherPath))
-                {
-                    //Console.WriteLine("Aem TBL Patcher detected! Create tblpatches now?");
-                    //Console.WriteLine("0. Yes\n1. No");
-                    //int choice = PromptInt("Choice");
-                    Process aemPatcher = Process.Start(new ProcessStartInfo(aemPatcherPath));
-                    aemPatcher.WaitForExit();
-
-                    if (aemPatcher.ExitCode == 0)
-                    {
-                        try
-                        {
-                            if (!Directory.Exists($@"{packageFolderDir}\tblpatches"))
-                                Directory.CreateDirectory($@"{packageFolderDir}\tblpatches");
-
-                            // delete all existing tblpatches in package folder
-                            foreach (string file in Directory.GetFiles($@"{packageFolderDir}\tblpatches"))
-                                File.Delete(file);
-
-                            // copy tbl patches to package folder
-                            foreach (string file in Directory.GetFiles($@"{currentDir}\patches"))
-                                File.Copy(file, $@"{packageFolderDir}\tblpatches\{Path.GetFileName(file)}", true);
-                        }
-                        catch (Exception e)
-                        {
-                            Console.WriteLine(e);
-                            Console.WriteLine("Problem copying patches to Aemulus package!");
-                        }
+                        reader.BaseStream.Seek(size, SeekOrigin.Current);
+                        writer.Write(reader.ReadBytes((int)(reader.BaseStream.Length - (size + 4))));
                     }
                 }
 
+                // create tbl patches
                 try
                 {
                     tblpatcher.GenerateTBLPatches(packageFolderDir, allBattles);
@@ -228,7 +209,7 @@ namespace P4G_Encount_Music_Editor
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                Console.WriteLine("Problem saving modified ENCOUNT.TBL!");
+                Console.WriteLine("Problem building output!");
             }
         }
 
@@ -512,9 +493,9 @@ namespace P4G_Encount_Music_Editor
 
         private static string GetEnemyName(ushort enemyId)
         {
-            if (gameID == 4)
+            if (gameID == Game_P4G)
                 return ((P4_EnemiesID)enemyId).ToString();
-            if (gameID == 5)
+            if (gameID == Game_P5)
                 return ((P5_EnemiesID)enemyId).ToString();
             else
                 return null;
@@ -525,7 +506,7 @@ namespace P4G_Encount_Music_Editor
             List<Encounter> allEncounters = new List<Encounter>();
 
             bool useBigEndian = false;
-            if (gameID == 5)
+            if (gameID == Game_P5)
             {
                 //Console.WriteLine("Reading Encount.tbl in Big Endian!");
                 useBigEndian = true;

@@ -11,7 +11,7 @@ namespace P4G_Encount_Music_Editor
     {
         public void GenerateTBLPatches(string outputFolder, Encounter[] encounters)
         {
-            string patchesDir = $@"{outputFolder}\tblpatches-2";
+            string patchesDir = $@"{outputFolder}\tblpatches";
 
             if (!Directory.Exists(patchesDir))
                 Directory.CreateDirectory(patchesDir);
@@ -19,6 +19,8 @@ namespace P4G_Encount_Music_Editor
             int offsetStart = 4;
             int encounterSize = 24;
             int musicOffset = 22;
+
+            StringBuilder patchesLog = new StringBuilder();
 
             for (int i = 0, total = encounters.Length; i < total; i++)
             {
@@ -32,8 +34,13 @@ namespace P4G_Encount_Music_Editor
                 writer.Write(BitConverter.GetBytes(currentEncOffset).Reverse().ToArray());
                 writer.Write(BitConverter.GetBytes(currentEnc.MusicId));
 
-                Console.WriteLine($"Created tblpatch\n{patchFile}\nOffset: {currentEncOffset}");
+                patchesLog.AppendLine($"Offset: {currentEncOffset:X} Value: {currentEnc.MusicId}");
             }
+
+            File.WriteAllText($@"{outputFolder}\TBL Patches.log", patchesLog.ToString());
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine($"{encounters.Length} tblpatches created!");
+            Console.ResetColor();
         }
     }
 }
