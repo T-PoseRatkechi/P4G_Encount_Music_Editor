@@ -34,7 +34,7 @@ namespace P4G_Encount_Music_Editor
                 foreach (string line in presetLines)
                 {
                     // skip comment lines
-                    if (line.StartsWith("//") || line.Length <= 3)
+                    if (line.StartsWith("//") || line.Length < 3)
                         continue;
 
                     string[] lineArgs = line.Split("=");
