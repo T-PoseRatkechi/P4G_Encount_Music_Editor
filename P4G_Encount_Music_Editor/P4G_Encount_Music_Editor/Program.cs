@@ -30,6 +30,7 @@ namespace P4G_Encount_Music_Editor
 
         private static PresetHandler presetHandler = new PresetHandler();
         private static ConfigHandler config = new ConfigHandler();
+        private static TBLPatchesGenerator tblpatcher = new TBLPatchesGenerator();
 
         private static int gameID = 0;
 
@@ -209,7 +210,16 @@ namespace P4G_Encount_Music_Editor
                             Console.WriteLine("Problem copying patches to Aemulus package!");
                         }
                     }
+                }
 
+                try
+                {
+                    tblpatcher.GenerateTBLPatches(packageFolderDir, allBattles);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    Console.WriteLine($"Problem generating tblpatches!");
                 }
 
                 // rebuild config patch
