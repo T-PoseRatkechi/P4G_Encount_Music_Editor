@@ -10,23 +10,8 @@ namespace P4G_Encount_Music_Editor
 {
     class Program
     {
-        private const int Game_P4G = 1;
-        private const int Game_P5 = 2;
-
-        public struct Encounter
-        {
-            public byte[] Flags { get; set; }
-            public ushort Field04 { get; set; }
-            public ushort Field06 { get; set; }
-            public ushort[] Units { get; set; }
-            public ushort FieldId { get; set; }
-            public ushort RoomId { get; set; }
-            public ushort MusicId { get; set; }
-        }
-
-        private static string currentDir = null;
         private static string originalFolderDir = null;
-        private static string moddedFolderDir = null;
+        //private static string moddedFolderDir = null;
         private static string presetsFolderDir = null;
         private static string packageFolderDir = null;
 
@@ -34,48 +19,81 @@ namespace P4G_Encount_Music_Editor
         private static ConfigHandler config = new ConfigHandler();
         private static TBLPatchesGenerator tblpatcher = new TBLPatchesGenerator();
 
-        private static int gameID = 0;
+        private static string currentDir = null;
+        private static GameProps currentGame;
 
         static void Main(string[] args)
         {
-            SetPaths();
+            Console.WriteLine("Encount Music Editor\n");
+            currentDir = Directory.GetCurrentDirectory();
 
-            //Console.WriteLine("Which Persona game are you editing?");
-            //gameID = PromptInt("Persona (4/5)");
-            //if (gameID != 4 && gameID != 5)
-            //    return;
-
-            if (!PromptGame())
-                return;
-
-            EditEncount();
-
-            Console.WriteLine("Enter any key to exit...");
-            Console.ReadKey();
+            SetupGame();
+            MainMenu();
         }
 
-        private static bool PromptGame()
+        private static void SetupGame()
         {
-            Console.WriteLine("Which Persona game are you editing?");
-            Console.WriteLine("1. Persona 4 Golden");
-            Console.WriteLine("2. Persona 5");
-            gameID = ConsolePrompt.PromptInt("Game Selection");
-            if (gameID < 1 || gameID > 2)
-            {
-                Console.WriteLine("Invalid selection!");
-                Console.WriteLine("Enter any key to exit...");
-                Console.ReadKey();
-                return false;
-            }
+            int selectedGameInput = -1;
 
-            return true;
+            do
+            {
+                Console.WriteLine("Select Persona Game");
+
+                // display list of available games as choices, starting at 1
+                foreach (GameTitle game in Enum.GetValues(typeof(GameTitle)))
+                {
+                    Console.WriteLine($"{(int)game + 1}. {game}");
+                }
+
+                // save temp choice
+                int tempChoice = ConsolePrompt.PromptInt("Game");
+
+                // save and exit prompt if game choice is valid
+                if (Enum.IsDefined(typeof(GameTitle), tempChoice - 1))
+                    selectedGameInput = tempChoice - 1;
+
+            }
+            while (selectedGameInput < 0);
+
+            GameTitle selectedGame = (GameTitle)selectedGameInput;
+
+            currentGame = new GameProps(selectedGame);
+        }
+
+        private static void MainMenu()
+        {
+            IMenuOption[] menuOptions = new IMenuOption[]
+            {
+                new RunPresetOption(),
+            };
+
+            do
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"{currentGame.Game} Encount Music Editor");
+                Console.ResetColor();
+
+                for (int i = 0, total = menuOptions.Length; i < total; i++)
+                {
+                    Console.WriteLine($"{i + 1}. {menuOptions[i].Name}");
+                }
+                Console.WriteLine("0. Exit");
+
+                int choice = ConsolePrompt.PromptInt("Choice");
+
+                if (choice == 0)
+                    return;
+                else if (choice - 1 < menuOptions.Length)
+                    menuOptions[choice - 1].Run(currentGame);
+            }
+            while (true);
         }
 
         private static void SetPaths()
         {
-            currentDir = Directory.GetCurrentDirectory();
+            //currentDir = Directory.GetCurrentDirectory();
             originalFolderDir = $@"{currentDir}\original";
-            moddedFolderDir = $@"{currentDir}\modded";
+            //moddedFolderDir = $@"{currentDir}\modded";
             presetsFolderDir = $@"{currentDir}\presets";
             packageFolderDir = $@"{currentDir}\BGME Config Package";
 
@@ -83,7 +101,7 @@ namespace P4G_Encount_Music_Editor
             try
             {
                 Directory.CreateDirectory(originalFolderDir);
-                Directory.CreateDirectory(moddedFolderDir);
+                //Directory.CreateDirectory(moddedFolderDir);
                 Directory.CreateDirectory(presetsFolderDir);
                 Directory.CreateDirectory($@"{currentDir}\collections");
                 Directory.CreateDirectory(packageFolderDir);
@@ -102,14 +120,14 @@ namespace P4G_Encount_Music_Editor
             if (!encountExists)
             {
                 Console.WriteLine($"Missing original ENCOUNT.TBL! File: {inEncountPath}");
-                if (gameID == Game_P5)
+                if (currentGame.Game == GameTitle.P5)
                 {
                     return;
                 }
                 Console.WriteLine($"Some features will be disabled!");
             }
 
-            string outEncountPath = $@"{moddedFolderDir}\ENCOUNT.TBL";
+            string outEncountPath = null;
 
             Encounter[] allBattles = encountExists ? GetEncountersList(inEncountPath) : new Encounter[944];
 
@@ -159,7 +177,7 @@ namespace P4G_Encount_Music_Editor
                         writer.Write(size);
                         foreach (Encounter battle in allBattles)
                         {
-                            if (gameID == Game_P5)
+                            if (currentGame.IsBigEndian)
                             {
                                 writer.Write(battle.Flags);
                                 writer.Write(GetReverseEndianessBytes(battle.Field04));
@@ -436,9 +454,9 @@ namespace P4G_Encount_Music_Editor
 
         private static string GetEnemyName(ushort enemyId)
         {
-            if (gameID == Game_P4G)
+            if (currentGame.Game == GameTitle.P4G)
                 return ((P4_EnemiesID)enemyId).ToString();
-            if (gameID == Game_P5)
+            else if (currentGame.Game == GameTitle.P5)
                 return ((P5_EnemiesID)enemyId).ToString();
             else
                 return null;
@@ -448,13 +466,7 @@ namespace P4G_Encount_Music_Editor
         {
             List<Encounter> allEncounters = new List<Encounter>();
 
-            bool useBigEndian = false;
-            if (gameID == Game_P5)
-            {
-                //Console.WriteLine("Reading Encount.tbl in Big Endian!");
-                useBigEndian = true;
-            }
-
+            bool useBigEndian = currentGame.IsBigEndian;
             Console.WriteLine("Parsing ENCOUNT.TBL");
 
             try

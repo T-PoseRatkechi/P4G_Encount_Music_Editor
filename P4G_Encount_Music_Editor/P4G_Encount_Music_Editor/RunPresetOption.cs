@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
-using static P4G_Encount_Music_Editor.Program;
 
 namespace P4G_Encount_Music_Editor
 {
-    class PresetHandler
+    class RunPresetOption : IMenuOption
     {
-        private string currentDir = null;
-        private string presetsFolderDir = null;
-        private ConfigHandler config = new ConfigHandler();
-        private static Dictionary<string, ushort> setIndexNames = new Dictionary<string, ushort>();
-
-        public PresetHandler()
+        public RunPresetOption()
         {
             currentDir = Directory.GetCurrentDirectory();
             presetsFolderDir = $@"{currentDir}\presets";
         }
 
-        public void RunPreset(Encounter[] encounters)
+        public string Name => "Run Preset";
+
+        private string currentDir = null;
+        private string presetsFolderDir = null;
+
+        private ConfigHandler config = new ConfigHandler();
+        private Dictionary<string, ushort> setIndexNames = new Dictionary<string, ushort>();
+
+        public void Run(GameProps game)
         {
+            // store list of encounter music ids
+            ushort[] encountersMusicIds = new ushort[game.TotalEncounters()];
+
             // get preset file path
             string presetFile = SelectPresetFile();
             if (presetFile == null)
@@ -49,7 +54,7 @@ namespace P4G_Encount_Music_Editor
                     if (lineArgs[0].StartsWith('.'))
                     {
                         string collection = item.Substring(1);
-                        RunCollectionCommand(encounters, collection, newMusicId);
+                        RunCollectionCommand(encountersMusicIds, collection, newMusicId);
                     }
                     // line is an alias command
                     else if (lineArgs[0].StartsWith('_'))
@@ -65,7 +70,7 @@ namespace P4G_Encount_Music_Editor
                         Console.WriteLine("Direct Edit");
                         Console.ResetColor();
                         Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {newMusicId}");
-                        encounters[encounterIndex].MusicId = newMusicId;
+                        encountersMusicIds[encounterIndex] = newMusicId;
                     }
                 }
             }
@@ -75,6 +80,7 @@ namespace P4G_Encount_Music_Editor
                 Console.Write("Problem reading preset file! Enter any key to return to menu...");
                 Console.ReadLine();
             }
+            
         }
 
         private ushort ParseCommand(string command)
@@ -151,14 +157,14 @@ namespace P4G_Encount_Music_Editor
             if (!setIndexNames.ContainsKey(name))
             {
                 int setIndex = waveIndex - 8192;
-                setIndexNames.Add(name, (ushort) setIndex);
+                setIndexNames.Add(name, (ushort)setIndex);
                 ushort[] aliasSet = config.GetSetByKey(waveIndex);
                 if (aliasSet != null)
                     Console.WriteLine($"{name} set to SetID: {setIndex} ({aliasSet[0]}, {aliasSet[1]})");
             }
         }
 
-        private void RunCollectionCommand(Encounter[] encounters, string collectionName, ushort waveIndex)
+        private void RunCollectionCommand(ushort[] encountersMusicIds, string collectionName, ushort waveIndex)
         {
             Console.ForegroundColor = ConsoleColor.Cyan;
             Console.WriteLine($"Collection {collectionName.ToUpper()}:");
@@ -168,9 +174,9 @@ namespace P4G_Encount_Music_Editor
             {
                 case "all":
                     Console.WriteLine($"Setting All Encounter Music IDs to: {waveIndex}");
-                    for (int i = 0, total = encounters.Length; i < total; i++)
+                    for (int i = 0, total = encountersMusicIds.Length; i < total; i++)
                     {
-                        encounters[i].MusicId = waveIndex;
+                        encountersMusicIds[i] = waveIndex;
                     }
                     break;
                 default:
@@ -193,12 +199,12 @@ namespace P4G_Encount_Music_Editor
                             // skip comment lines and new lines
                             if (line.StartsWith('/') || line.StartsWith('\n') || line.Length < 1)
                                 continue;
-                            
+
                             try
                             {
                                 int encounterIndex = Int32.Parse(line);
                                 //Console.WriteLine($"Encounter Index: {encounterIndex} Song Index: {waveIndex}");
-                                encounters[encounterIndex].MusicId = waveIndex;
+                                encountersMusicIds[encounterIndex] = waveIndex;
                                 numEncounters++;
                             }
                             catch (Exception e)
@@ -235,7 +241,7 @@ namespace P4G_Encount_Music_Editor
             }
 
             // exit if no presets were found
-            if (allPresets.Length <= 0)
+            if (allPresets.Length < 1)
                 return null;
 
             // display all presets
