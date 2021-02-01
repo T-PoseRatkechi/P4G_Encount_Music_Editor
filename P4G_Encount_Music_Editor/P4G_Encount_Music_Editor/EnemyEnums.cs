@@ -4,7 +4,7 @@ using System.Text;
 
 namespace P4G_Encount_Music_Editor
 {
-    class Enums
+    class EnemyEnums
     {
         public enum P4_EnemiesID
         {

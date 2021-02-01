@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Buffers.Binary;
-using static P4G_Encount_Music_Editor.Enums;
+using static P4G_Encount_Music_Editor.EnemyEnums;
 using System.Text;
 using System.Linq;
 using System.Diagnostics;
