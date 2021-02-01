@@ -5,7 +5,6 @@ using System.Buffers.Binary;
 using static P4G_Encount_Music_Editor.EnemyEnums;
 using System.Text;
 using System.Linq;
-using System.Diagnostics;
 
 namespace P4G_Encount_Music_Editor
 {
@@ -60,7 +59,7 @@ namespace P4G_Encount_Music_Editor
             Console.WriteLine("Which Persona game are you editing?");
             Console.WriteLine("1. Persona 4 Golden");
             Console.WriteLine("2. Persona 5");
-            gameID = PromptInt("Game Selection");
+            gameID = ConsolePrompt.PromptInt("Game Selection");
             if (gameID < 1 || gameID > 2)
             {
                 Console.WriteLine("Invalid selection!");
@@ -128,7 +127,7 @@ namespace P4G_Encount_Music_Editor
                 }
                 Console.WriteLine("0. Save and Exit");
 
-                menuSelection = PromptInt("Menu Selection");
+                menuSelection = ConsolePrompt.PromptInt("Menu Selection");
                 switch (menuSelection)
                 {
                     case 1:
@@ -247,62 +246,6 @@ namespace P4G_Encount_Music_Editor
             }
         }
 
-        private static int PromptInt(string name)
-        {
-            int theNumber = -1;
-
-            while (theNumber < 0)
-            {
-                Console.Write($"Enter {name} (number): ");
-                string input = Console.ReadLine();
-                try
-                {
-                    theNumber = Int32.Parse(input);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Couldn't parse numer!");
-                }
-            }
-
-            Console.WriteLine();
-
-            return theNumber;
-        }
-
-        private static bool PromptYN(string name)
-        {
-            string theString = null;
-
-            while (theString == null || (!theString.Equals("y") && !theString.Equals("n")))
-            {
-                theString = PromptString(name);
-            }
-
-            if (theString.ToLower().Equals("y"))
-                return true;
-            else
-                return false;
-        }
-
-        private static string PromptString(string name)
-        {
-            string theString = null;
-
-            while (theString == null)
-            {
-                Console.Write($"Enter {name} (string): ");
-                string input = Console.ReadLine();
-
-                if (input != null && input.Length > 0)
-                {
-                    theString = input;
-                }
-            }
-
-            return theString;
-        }
-
         private static void CollectionCreation(Encounter[] encounters)
         {
             Console.WriteLine("Collection Creation");
@@ -312,7 +255,7 @@ namespace P4G_Encount_Music_Editor
 
             while (true)
             {
-                string searchString = PromptString("Search Term").ToLower();
+                string searchString = ConsolePrompt.PromptString("Search Term").ToLower();
                 if (searchString.Equals("inaba"))
                     break;
 
@@ -322,7 +265,7 @@ namespace P4G_Encount_Music_Editor
                 if (searchTerms.Length == 1)
                 {
                     Console.WriteLine("Match encounters that contain only ONE instance (y) or any amount (n) of Search Term?");
-                    searchByOccurence = PromptYN("(y/n)");
+                    searchByOccurence = ConsolePrompt.PromptYN("(y/n)");
                 }
 
                 int totalMatches = 0;
@@ -390,14 +333,14 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine($"Total Matches: {totalMatches}");
             }
 
-            string collectionName = PromptString("Collection Name (Lowercase)").ToLower();
+            string collectionName = ConsolePrompt.PromptString("Collection Name (Lowercase)").ToLower();
             string collectionFilePath = $@"{currentDir}\collections\{collectionName}.enc";
             bool addToFile = false;
 
             if (File.Exists(collectionFilePath))
             {
                 Console.WriteLine("Collection exists! Append to collection (y) or overwrite (n)?");
-                addToFile = PromptYN("(y/n)");
+                addToFile = ConsolePrompt.PromptYN("(y/n)");
             }
 
             // write or overwrite collection file

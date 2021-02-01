@@ -53,7 +53,7 @@ namespace P4G_Encount_Music_Editor
 
         public void ExtendSongsList()
         {
-            int newNumSongs = PromptInt("New Total Songs");
+            int newNumSongs = ConsolePrompt.PromptInt("New Total Songs");
 
             string originalConversionFile = $@"{currentDir}\music manager\idtowaveindex_original.json";
             string outputConversionFile = $@"{currentDir}\music manager\idtowaveindex.json";
@@ -167,27 +167,6 @@ namespace P4G_Encount_Music_Editor
                 Console.WriteLine($"Problem parsing conversion file! File: {filePath}");
                 return null;
             }
-        }
-
-        private static int PromptInt(string name)
-        {
-            int theNumber = -1;
-
-            while (theNumber < 0)
-            {
-                Console.Write($"Enter {name} (number): ");
-                string input = Console.ReadLine();
-                try
-                {
-                    theNumber = Int32.Parse(input);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Couldn't parse numer!");
-                }
-            }
-
-            return theNumber;
         }
     }
 }

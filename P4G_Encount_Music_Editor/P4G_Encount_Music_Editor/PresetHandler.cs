@@ -249,7 +249,7 @@ namespace P4G_Encount_Music_Editor
             int presetSelection = -1;
             do
             {
-                int tempChoice = PromptInt("Preset Selection");
+                int tempChoice = ConsolePrompt.PromptInt("Preset Selection");
                 if (tempChoice > allPresets.Length)
                     Console.WriteLine("Invalid selection!");
                 else
@@ -258,27 +258,6 @@ namespace P4G_Encount_Music_Editor
             } while (presetSelection < 1);
 
             return allPresets[presetSelection - 1];
-        }
-
-        private static int PromptInt(string name)
-        {
-            int theNumber = -1;
-
-            while (theNumber < 0)
-            {
-                Console.Write($"Enter {name} (number): ");
-                string input = Console.ReadLine();
-                try
-                {
-                    theNumber = Int32.Parse(input);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine("Couldn't parse numer!");
-                }
-            }
-
-            return theNumber;
         }
     }
 }
