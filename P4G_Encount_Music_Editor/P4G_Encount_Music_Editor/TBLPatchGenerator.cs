@@ -51,14 +51,14 @@ namespace P4G_Encount_Music_Editor
                 Patches = musicPatches.ToArray()
             };
 
-            string patchFilePath = $@"{outputFolder}\tblpatches\EncountMusicPatches.tbp";
+            string patchFilePath = $@"{outputFolder}\EncountMusicPatches.tbp";
             
             // create sub tblpatches folder if missing
             if (!Directory.GetParent(patchFilePath).Exists)
                 Directory.CreateDirectory(Path.GetDirectoryName(patchFilePath));
 
             File.WriteAllText(patchFilePath, JsonSerializer.Serialize(encountPatch, new JsonSerializerOptions { WriteIndented = true }));
-            Console.WriteLine($"TBL Patch Created: {patchFilePath}");
+            //Console.WriteLine($"TBL Patch Created: {patchFilePath}");
         }
     }
 }

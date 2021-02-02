@@ -15,7 +15,7 @@ namespace P4G_Encount_Music_Editor
         private static string presetsFolderDir = null;
         private static string packageFolderDir = null;
 
-        private static ConfigHandler config = new ConfigHandler();
+        private static BGMEConfig config = new BGMEConfig();
         private static TBLPatchGenerator tblpatcher = new TBLPatchGenerator();
 
         private static string currentDir = null;

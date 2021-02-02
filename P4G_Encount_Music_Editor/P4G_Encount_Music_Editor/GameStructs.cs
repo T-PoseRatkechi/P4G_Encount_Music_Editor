@@ -18,6 +18,9 @@ namespace P4G_Encount_Music_Editor
         public bool IsBigEndian { get; }
         public int EntrySize { get; }
         public int StartingOffset { get; }
+        public string PackageFolder { get; }
+        public string TblPatchesFolder { get; }
+        public string PatchesFolder { get; }
 
         public GameProps(GameTitle game)
         {
@@ -27,6 +30,10 @@ namespace P4G_Encount_Music_Editor
             IsBigEndian = game == GameTitle.P5;
             EntrySize = 24;
             StartingOffset = 22;
+
+            PackageFolder = game == GameTitle.P4G ? $@"{currentDir}\BGME Config Package" : $@"{currentDir}\Encount Music Package";
+            TblPatchesFolder = $@"{PackageFolder}\tblpatches";
+            PatchesFolder = $@"{PackageFolder}\patches";
         }
 
         public int TotalEncounters()

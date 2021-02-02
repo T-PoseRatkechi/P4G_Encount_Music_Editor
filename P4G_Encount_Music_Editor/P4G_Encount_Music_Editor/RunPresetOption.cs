@@ -10,6 +10,18 @@ namespace P4G_Encount_Music_Editor
     {
         public string Name => "Run Preset";
 
+        private readonly struct PresetConfig
+        {
+            public BGMEConfig BgmeConfig { get; }
+            public Dictionary<string, ushort> SetIndexNames { get; }
+
+            public PresetConfig(BGMEConfig bgme, Dictionary<string, ushort> setIndexNames)
+            {
+                BgmeConfig = bgme;
+                SetIndexNames = setIndexNames;
+            }
+        }
+
         private string currentDir = null;
         private string presetsFolderDir = null;
 
@@ -19,13 +31,12 @@ namespace P4G_Encount_Music_Editor
             presetsFolderDir = $@"{currentDir}\presets";
         }
 
-        private ConfigHandler config = new ConfigHandler();
-        private Dictionary<string, ushort> setIndexNames = new Dictionary<string, ushort>();
-
         private TBLPatchGenerator patchGenerator = new TBLPatchGenerator();
 
         public void Run(GameProps game)
         {
+            PresetConfig config = new PresetConfig(new BGMEConfig(), new Dictionary<string, ushort>());
+
             // store list of encounter music ids
             ushort[] encountersMusicIds = new ushort[game.TotalEncounters()];
 
@@ -50,7 +61,7 @@ namespace P4G_Encount_Music_Editor
                     string command = lineArgs[1];
 
                     // parse command to get new music id
-                    ushort newMusicId = ParseCommand(command);
+                    ushort newMusicId = ParseCommand(ref config, command);
 
                     // line is a collection command
                     if (lineArgs[0].StartsWith('.'))
@@ -62,7 +73,7 @@ namespace P4G_Encount_Music_Editor
                     else if (lineArgs[0].StartsWith('_'))
                     {
                         string setName = lineArgs[0];
-                        RunAliasCommand(setName, newMusicId);
+                        RunAliasCommand(ref config, setName, newMusicId);
                     }
                     else
                     {
@@ -85,25 +96,25 @@ namespace P4G_Encount_Music_Editor
 
             try
             {
-                switch (game.Name)
+                // create preset tbl patches
+                EmptyFolder(game.TblPatchesFolder);
+                patchGenerator.GeneratePatch(game.TblPatchesFolder, game, encountersMusicIds);
+
+                // create inaba patch for p4g
+                if (game.Name == GameTitle.P4G)
                 {
-                    case GameTitle.P4G:
-                        string bgmePackageFolder = $@"{currentDir}\BGME Config Package";
-                        patchGenerator.GeneratePatch(bgmePackageFolder, game, encountersMusicIds);
-                        config.BuildPatch(bgmePackageFolder);
-                        break;
-                    case GameTitle.P5:
-                        string musicPackageFolder = $@"{currentDir}\Encount Music Package";
-                        patchGenerator.GeneratePatch(musicPackageFolder, game, encountersMusicIds);
-                        break;
-                    default:
-                        break;
+                    EmptyFolder(game.PatchesFolder);
+                    config.BgmeConfig.BuildPatch(game.PatchesFolder);
                 }
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine($"Aemulus Package Created: {game.PackageFolder}");
+                Console.ResetColor();
             }
             catch (Exception e)
             {
                 Console.WriteLine(e);
-                Console.WriteLine("Problem creating patches!");
+                Console.WriteLine("Problem creating package!");
             }
         }
 
@@ -111,9 +122,15 @@ namespace P4G_Encount_Music_Editor
         {
             string[] folderFiles = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
 
+            try
+            {
+                foreach (string file in folderFiles)
+                    File.Delete(file);
+            }
+            catch (DirectoryNotFoundException) { }
         }
 
-        private ushort ParseCommand(string command)
+        private ushort ParseCommand(ref PresetConfig config, string command)
         {
             ushort musicId = 0;
 
@@ -132,7 +149,7 @@ namespace P4G_Encount_Music_Editor
                     ushort minIndex = ushort.Parse(arg1);
                     ushort maxIndex = ushort.Parse(arg2);
 
-                    musicId = config.GetRandomSetIndex(minIndex, maxIndex, false);
+                    musicId = config.BgmeConfig.GetRandomSetIndex(minIndex, maxIndex, false);
                 }
                 catch (Exception e)
                 {
@@ -151,10 +168,10 @@ namespace P4G_Encount_Music_Editor
                     string arg1 = argMatches[0].Value;
                     string arg2 = argMatches[1].Value;
 
-                    ushort minIndex = setIndexNames[arg1];
-                    ushort maxIndex = setIndexNames[arg2];
+                    ushort minIndex = config.SetIndexNames[arg1];
+                    ushort maxIndex = config.SetIndexNames[arg2];
 
-                    musicId = config.GetRandomSetIndex(minIndex, maxIndex, true);
+                    musicId = config.BgmeConfig.GetRandomSetIndex(minIndex, maxIndex, true);
                 }
                 catch (Exception e)
                 {
@@ -164,7 +181,7 @@ namespace P4G_Encount_Music_Editor
             }
             else if (command.StartsWith('_'))
             {
-                musicId = (ushort)(setIndexNames[command] + 8192);
+                musicId = (ushort)(config.SetIndexNames[command] + 8192);
             }
             else
             {
@@ -182,13 +199,13 @@ namespace P4G_Encount_Music_Editor
             return musicId;
         }
 
-        private void RunAliasCommand(string name, ushort waveIndex)
+        private void RunAliasCommand(ref PresetConfig config, string name, ushort waveIndex)
         {
-            if (!setIndexNames.ContainsKey(name))
+            if (!config.SetIndexNames.ContainsKey(name))
             {
                 int setIndex = waveIndex - 8192;
-                setIndexNames.Add(name, (ushort)setIndex);
-                ushort[] aliasSet = config.GetSetByKey(waveIndex);
+                config.SetIndexNames.Add(name, (ushort)setIndex);
+                ushort[] aliasSet = config.BgmeConfig.GetSetByKey(waveIndex);
                 if (aliasSet != null)
                     Console.WriteLine($"{name} set to SetID: {setIndex} ({aliasSet[0]}, {aliasSet[1]})");
             }

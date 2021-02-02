@@ -6,12 +6,12 @@ using System.Text;
 
 namespace P4G_Encount_Music_Editor
 {
-    class ConfigHandler
+    class BGMEConfig
     {
         private string currentDir = null;
-        private static Dictionary<ushort, ushort[]> randSets = new Dictionary<ushort, ushort[]>();
+        private Dictionary<ushort, ushort[]> randSets = new Dictionary<ushort, ushort[]>();
 
-        public ConfigHandler()
+        public BGMEConfig()
         {
             currentDir = Directory.GetCurrentDirectory();
         }
@@ -83,7 +83,7 @@ namespace P4G_Encount_Music_Editor
                 throw new FileNotFoundException($"Missing original BGME_Config.patch! File: {patchFilePath}");
 
             // new patch file path
-            string newPatchFile = $@"{outputFolder}\patches\BGME_Config.patch";
+            string newPatchFile = $@"{outputFolder}\BGME_Config.patch";
 
             try
             {
@@ -120,9 +120,11 @@ namespace P4G_Encount_Music_Editor
 
                 File.WriteAllBytes(newPatchFile, patchBytes);
 
+                /*
                 Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine($"New BGME_Config Patch Created!\nFile: {newPatchFile}");
+                Console.WriteLine($"BGME_Config Patch Created: {newPatchFile}");
                 Console.ResetColor();
+                */
             }
             catch (Exception e)
             {
