@@ -8,19 +8,21 @@ namespace P4G_Encount_Music_Editor
 {
     class RunPresetOption : IMenuOption
     {
+        public string Name => "Run Preset";
+
+        private string currentDir = null;
+        private string presetsFolderDir = null;
+
         public RunPresetOption()
         {
             currentDir = Directory.GetCurrentDirectory();
             presetsFolderDir = $@"{currentDir}\presets";
         }
 
-        public string Name => "Run Preset";
-
-        private string currentDir = null;
-        private string presetsFolderDir = null;
-
         private ConfigHandler config = new ConfigHandler();
         private Dictionary<string, ushort> setIndexNames = new Dictionary<string, ushort>();
+
+        private TBLPatchGenerator patchGenerator = new TBLPatchGenerator();
 
         public void Run(GameProps game)
         {
@@ -78,9 +80,37 @@ namespace P4G_Encount_Music_Editor
             {
                 Console.WriteLine(e);
                 Console.Write("Problem reading preset file! Enter any key to return to menu...");
-                Console.ReadLine();
+                return;
             }
-            
+
+            try
+            {
+                switch (game.Name)
+                {
+                    case GameTitle.P4G:
+                        string bgmePackageFolder = $@"{currentDir}\BGME Config Package";
+                        patchGenerator.GeneratePatch(bgmePackageFolder, game, encountersMusicIds);
+                        config.BuildPatch(bgmePackageFolder);
+                        break;
+                    case GameTitle.P5:
+                        string musicPackageFolder = $@"{currentDir}\Encount Music Package";
+                        patchGenerator.GeneratePatch(musicPackageFolder, game, encountersMusicIds);
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+                Console.WriteLine("Problem creating patches!");
+            }
+        }
+
+        private void EmptyFolder(string folder)
+        {
+            string[] folderFiles = Directory.GetFiles(folder, "*.*", SearchOption.AllDirectories);
+
         }
 
         private ushort ParseCommand(string command)

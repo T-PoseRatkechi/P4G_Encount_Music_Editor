@@ -15,9 +15,8 @@ namespace P4G_Encount_Music_Editor
         private static string presetsFolderDir = null;
         private static string packageFolderDir = null;
 
-        private static PresetHandler presetHandler = new PresetHandler();
         private static ConfigHandler config = new ConfigHandler();
-        private static TBLPatchesGenerator tblpatcher = new TBLPatchesGenerator();
+        private static TBLPatchGenerator tblpatcher = new TBLPatchGenerator();
 
         private static string currentDir = null;
         private static GameProps currentGame;
@@ -70,7 +69,7 @@ namespace P4G_Encount_Music_Editor
             do
             {
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine($"{currentGame.Game} Encount Music Editor");
+                Console.WriteLine($"{currentGame.Name} Encount Music Editor");
                 Console.ResetColor();
 
                 for (int i = 0, total = menuOptions.Length; i < total; i++)
@@ -120,7 +119,7 @@ namespace P4G_Encount_Music_Editor
             if (!encountExists)
             {
                 Console.WriteLine($"Missing original ENCOUNT.TBL! File: {inEncountPath}");
-                if (currentGame.Game == GameTitle.P5)
+                if (currentGame.Name == GameTitle.P5)
                 {
                     return;
                 }
@@ -149,7 +148,7 @@ namespace P4G_Encount_Music_Editor
                 switch (menuSelection)
                 {
                     case 1:
-                        presetHandler.RunPreset(allBattles);
+                        //presetHandler.RunPreset(allBattles);
                         break;
                     case 2:
                         if (encountExists)
@@ -212,7 +211,7 @@ namespace P4G_Encount_Music_Editor
                 // create tbl patches
                 try
                 {
-                    tblpatcher.GenerateTBLPatches(packageFolderDir, allBattles);
+                    //tblpatcher.GenerateTBLPatches(packageFolderDir, allBattles);
                 }
                 catch (Exception e)
                 {
@@ -221,7 +220,7 @@ namespace P4G_Encount_Music_Editor
                 }
 
                 // rebuild config patch
-                config.BuildPatch();
+                //config.BuildPatch();
             }
             catch (Exception e)
             {
@@ -454,9 +453,9 @@ namespace P4G_Encount_Music_Editor
 
         private static string GetEnemyName(ushort enemyId)
         {
-            if (currentGame.Game == GameTitle.P4G)
+            if (currentGame.Name == GameTitle.P4G)
                 return ((P4_EnemiesID)enemyId).ToString();
-            else if (currentGame.Game == GameTitle.P5)
+            else if (currentGame.Name == GameTitle.P5)
                 return ((P5_EnemiesID)enemyId).ToString();
             else
                 return null;

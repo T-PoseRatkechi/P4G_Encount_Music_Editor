@@ -13,21 +13,25 @@ namespace P4G_Encount_Music_Editor
 
     readonly struct GameProps
     {
-        public GameTitle Game { get; }
+        public GameTitle Name { get; }
         public string EncountFile { get; }
         public bool IsBigEndian { get; }
+        public int EntrySize { get; }
+        public int StartingOffset { get; }
 
         public GameProps(GameTitle game)
         {
             string currentDir = Directory.GetCurrentDirectory();
-            Game = game;
+            Name = game;
             EncountFile = $@"{currentDir}\{game}\ENCOUNT.TBL";
             IsBigEndian = game == GameTitle.P5;
+            EntrySize = 24;
+            StartingOffset = 22;
         }
 
         public int TotalEncounters()
         {
-            return Game switch
+            return Name switch
             {
                 GameTitle.P4G => 944,
                 GameTitle.P5 => 1000,

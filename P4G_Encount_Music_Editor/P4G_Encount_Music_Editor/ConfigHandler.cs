@@ -73,27 +73,23 @@ namespace P4G_Encount_Music_Editor
             }
         }
 
-        public void BuildPatch()
+        public void BuildPatch(string outputFolder)
         {
             // set file paths
             string patchFilePath = $@"{currentDir}\original\BGME_Config.patch";
 
             // exit early if missing one of the required files
             if (!File.Exists(patchFilePath))
-            {
-                Console.WriteLine($"Missing original BGME_Config.patch! File: {patchFilePath}");
-                return;
-            }
+                throw new FileNotFoundException($"Missing original BGME_Config.patch! File: {patchFilePath}");
 
             // new patch file path
-            string newPatchFile = $@"{currentDir}\BGME Config Package\patches\BGME_Config.patch";
+            string newPatchFile = $@"{outputFolder}\patches\BGME_Config.patch";
 
             try
             {
-                if (!Directory.Exists(Path.GetDirectoryName(newPatchFile)))
-                {
+                // create sub patches folder if missing
+                if (!Directory.GetParent(newPatchFile).Exists)
                     Directory.CreateDirectory(Path.GetDirectoryName(newPatchFile));
-                }
 
                 byte[] patchBytes = File.ReadAllBytes(patchFilePath);
                 int startOffset = 20;
@@ -132,7 +128,6 @@ namespace P4G_Encount_Music_Editor
             {
                 Console.WriteLine(e);
                 Console.WriteLine("Problem rebuilding BGME_Config patch!");
-                Console.ReadLine();
             }
         }
     }
