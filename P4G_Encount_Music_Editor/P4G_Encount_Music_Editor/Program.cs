@@ -64,6 +64,7 @@ namespace P4G_Encount_Music_Editor
             IMenuOption[] menuOptions = new IMenuOption[]
             {
                 new RunPresetOption(),
+                new CollectionCreationOption()
             };
 
             do
@@ -501,14 +502,6 @@ namespace P4G_Encount_Music_Editor
             }
 
             return allEncounters.ToArray();
-        }
-
-        public static void DisplayEnemiesList(P4_EnemiesID[] enemies)
-        {
-            foreach (P4_EnemiesID enemy in enemies)
-            {
-                Console.WriteLine($"ID: {(int)enemy} Name: {enemy}");
-            }
         }
     }
 }
