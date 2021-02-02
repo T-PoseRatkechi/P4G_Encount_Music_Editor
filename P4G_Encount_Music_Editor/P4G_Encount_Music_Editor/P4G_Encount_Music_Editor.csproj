@@ -16,7 +16,7 @@
   </Target>
 
   <ItemGroup>
-    <None Update="original\BGME_Config.patch">
+    <None Update="P4G\BGME_Config.patch">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>

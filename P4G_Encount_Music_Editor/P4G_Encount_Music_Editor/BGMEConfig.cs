@@ -76,11 +76,16 @@ namespace P4G_Encount_Music_Editor
         public void BuildPatch(string outputFolder)
         {
             // set file paths
-            string patchFilePath = $@"{currentDir}\original\BGME_Config.patch";
+            string patchFilePath = $@"{currentDir}\P4G\BGME_Config.patch";
 
             // exit early if missing one of the required files
             if (!File.Exists(patchFilePath))
-                throw new FileNotFoundException($"Missing original BGME_Config.patch! File: {patchFilePath}");
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Missing original BGME_Config.patch! File: {patchFilePath}");
+                Console.ResetColor();
+                return;
+            }
 
             // new patch file path
             string newPatchFile = $@"{outputFolder}\BGME_Config.patch";
