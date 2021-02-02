@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Text.Json;
-using static P4G_Encount_Music_Editor.Program;
 
 namespace P4G_Encount_Music_Editor
 {
