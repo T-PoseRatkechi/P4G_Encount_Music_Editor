@@ -12,7 +12,7 @@
   </PropertyGroup>
 
   <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\collections&quot; &quot;$(TargetDir)collections&quot; /D /S /Y&#xD;&#xA;xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\presets&quot; &quot;$(TargetDir)presets&quot; /D /S /Y&#xD;&#xA;xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\BGME Config Package&quot; &quot;$(TargetDir)BGME Config Package\&quot; /D /E /Y" />
+    <Exec Command="xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\collections&quot; &quot;$(TargetDir)collections\&quot; /D /S /Y&#xD;&#xA;xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\presets&quot; &quot;$(TargetDir)presets\&quot; /D /S /Y&#xD;&#xA;xcopy &quot;$(SolutionDir)P4G_Encount_Music_Editor\BGME Config Package&quot; &quot;$(TargetDir)BGME Config Package\&quot; /D /E /Y" />
   </Target>
 
   <ItemGroup>
