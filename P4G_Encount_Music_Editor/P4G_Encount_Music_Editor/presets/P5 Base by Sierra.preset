@@ -1,6 +1,9 @@
 // This preset mimics P5's default song usage and is meant to be used
 // as only a starting point for other presets.
 
+// set all encounters to play last surprise
+.all=0
+
 // Enemy: SacrificialPyrekeeper1
 641=332
 // Enemy: CryptdwellingPyromaniac1
