@@ -20,7 +20,7 @@ namespace P4G_Encount_Music_Editor
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine("Couldn't parse numer!");
+                    Console.WriteLine("Couldn't parse number!");
                 }
             }
 
