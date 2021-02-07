@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -20,9 +21,25 @@ namespace Encount_Music_Editor_GUI
     /// </summary>
     public partial class MainWindow : Window
     {
+        private MainVM mainVM = new MainVM();
+
         public MainWindow()
         {
             InitializeComponent();
+            DataContext = mainVM;
+        }
+
+        private void MenuLoad_Click(object sender, RoutedEventArgs e)
+        {
+            Microsoft.Win32.OpenFileDialog dlg = new Microsoft.Win32.OpenFileDialog();
+            dlg.DefaultExt = ".preset";
+            dlg.Filter = "Preset(*.preset)|*.preset";
+            bool? result = dlg.ShowDialog();
+            if (result == true)
+            {
+                string fileName = dlg.FileName;
+                mainVM.LoadPreset(fileName);
+            }
         }
     }
 }

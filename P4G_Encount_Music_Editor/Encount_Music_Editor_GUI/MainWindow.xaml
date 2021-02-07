@@ -6,7 +6,23 @@
         xmlns:local="clr-namespace:Encount_Music_Editor_GUI"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-
+    <Grid Background="#FFE8E8E8">
+        <Menu Height="22" VerticalAlignment="Top" Background="White">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New" />
+                <MenuItem Header="_Load" Click="MenuLoad_Click"/>
+                <MenuItem Header="_Save" />
+            </MenuItem>
+        </Menu>
+        <Border BorderThickness="1" BorderBrush="Black" Margin="10,30,481,10">
+            <ListView ItemsSource="{Binding EncountItemsCollection}">
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="Type" DisplayMemberBinding="{Binding Type}"/>
+                        <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Border>
     </Grid>
 </Window>
