@@ -11,4 +11,8 @@
     <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\MusicEditorLibrary\MusicEditorLibrary.csproj" />
+  </ItemGroup>
+
 </Project>

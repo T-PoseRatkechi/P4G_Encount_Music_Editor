@@ -22,7 +22,22 @@
                         <GridViewColumn Header="Name" DisplayMemberBinding="{Binding Name}"/>
                     </GridView>
                 </ListView.View>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <EventSetter Event="PreviewMouseLeftButtonDown" Handler="ListViewItem_PreviewMouseLeftButtonDown" />
+                    </Style>
+                </ListView.ItemContainerStyle>
             </ListView>
+        </Border>
+        <Border BorderThickness="1" BorderBrush="Black" Margin="324,30,10,260">
+            <GroupBox Header="Selection Settings">
+                <Grid>
+                    <Label Content="Encounter Index(es): " HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,0,0,0"/>
+                    <TextBox HorizontalAlignment="Left" Margin="130,4,0,0" Text="{Binding CurrentEncountItem.Name}" TextWrapping="Wrap" VerticalAlignment="Top" Width="312"/>
+                    <Label Content="Value" HorizontalAlignment="Left" Margin="10,26,0,0" VerticalAlignment="Top" Width="120"/>
+                    <TextBox HorizontalAlignment="Left" Margin="130,28,0,0" Text="{Binding CurrentEncountItem.Type}" TextWrapping="Wrap" VerticalAlignment="Top" Width="312"/>
+                </Grid>
+            </GroupBox>
         </Border>
     </Grid>
 </Window>
